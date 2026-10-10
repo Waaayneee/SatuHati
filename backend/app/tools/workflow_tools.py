@@ -151,6 +151,7 @@ class UpdateMissionStateOut(BaseModel):
     approval_required: bool = False
     approval_id: str | None = None
     approval_tier: int | None = None
+    approval_action_type: str | None = None
     note: str
 
 
@@ -182,6 +183,7 @@ def update_mission_state(ctx: ToolContext, args: UpdateMissionStateIn) -> Update
         approval_required=approval is not None,
         approval_id=str(approval.id) if approval else None,
         approval_tier=approval.tier if approval else None,
+        approval_action_type=approval.action_type if approval else None,
         note=note,
     )
 

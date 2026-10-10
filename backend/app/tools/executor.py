@@ -120,6 +120,7 @@ def _run_direct(spec: ToolSpec, ctx: ToolContext, parsed: BaseModel, input_ref: 
     if status == "approval_required":
         response["approval_id"] = result.get("approval_id")
         response["approval_tier"] = result.get("approval_tier")
+        response["action_type"] = result.get("approval_action_type")
     return response
 
 
@@ -158,6 +159,7 @@ def _request_approval(spec: ToolSpec, ctx: ToolContext, parsed: BaseModel,
         "status": "approval_required",
         "tool": spec.name,
         **result,
+        "approval_tier": approval.tier,
         "note": "Not executed. A human approver must decide first.",
     }
 
