@@ -6,7 +6,7 @@ export type Vendor = {
   arrival: string | null; specsConfirmed: boolean; status: string; description: string;
   strengths: string[]; concerns: string[]; quoteRef: string;
 };
-export type Activity = { id: string; title: string; detail: string; time: string; kind: 'research' | 'mail' | 'offer' | 'human' };
+export type Activity = { id: string; title: string; detail: string; time: string; occurredAt?: string; kind: 'research' | 'mail' | 'offer' | 'human' };
 export type ProcurementCase = {
   taskId?:string|null;workflowMode?:'research'|'liaise';workflowPlan?:{id:string;label:string;status:string;detail:string}[];shortlistVendorIds?:string[];
   backendRevision?: number; eventId?: string; messages?: {id:string;vendorId:string;direction:string;body:string;time:string;executionMode:string}[]; id: string; title: string; goal: string; quantity: number; budgetSen: number; targetSen: number;

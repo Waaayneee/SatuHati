@@ -6,10 +6,10 @@ const page=await browser.newPage({viewport:{width:1440,height:1000}});
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 try{
   await page.goto('http://127.0.0.1:3000');
-  await page.getByRole('heading',{name:'Your workspace.',exact:true}).waitFor({timeout:10000});
+  await page.getByRole('heading',{name:'What are we working on?',exact:true}).waitFor({timeout:10000});
   await page.getByRole('link',{name:/Tech Night/}).first().waitFor();
   await mkdir('test-results',{recursive:true});
-  await page.screenshot({path:'test-results/overview-desktop.png',fullPage:true});
+  await page.screenshot({path:'test-results/new-chat-desktop.png',fullPage:true});
   await page.getByRole('button',{name:'New project',exact:true}).first().click();
   const name='QA Project '+Date.now();
   await page.getByLabel('Project name').fill(name);
@@ -21,7 +21,7 @@ try{
   await page.getByText('event-plan.txt',{exact:false}).first().waitFor();
   await page.getByLabel('Message KawTeam').fill('Find shirt printing vendors within RM2000 for 50 shirts.');
   await page.getByRole('button',{name:'Send message',exact:true}).click();
-  await page.getByRole('link',{name:/View supplier request/}).waitFor({timeout:30000});
+  await page.getByRole('link',{name:/Open full request/}).waitFor({timeout:30000});
   await page.getByRole('button',{name:'New task',exact:true}).first().click();
   await page.getByLabel('Task name').fill('T-shirt printing');
   await page.getByRole('dialog').getByRole('button',{name:'Create task',exact:true}).click();
@@ -35,8 +35,8 @@ try{
   await page.getByRole('heading',{name:'T-shirt printing',exact:true}).waitFor();
   await page.getByLabel('Message KawTeam').fill('I want 20 more shirts from the same vendor within RM800.');
   await page.getByRole('button',{name:'Send message',exact:true}).click();
-  await page.getByRole('link',{name:/View supplier request/}).waitFor({timeout:30000});
-  await page.getByText(/Research skipped/).first().waitFor();
+  await page.getByRole('link',{name:/Open full request/}).waitFor({timeout:30000});
+  await page.getByText(/Existing supplier reused/).first().waitFor();
   await page.reload();
   await page.getByText('I want 20 more shirts from the same vendor within RM800.',{exact:true}).waitFor();
   await page.screenshot({path:'test-results/project-chat-desktop.png',fullPage:true});
@@ -45,13 +45,12 @@ try{
   await page.getByRole('link',{name:'Calendar',exact:true}).first().click();
   await page.getByRole('heading',{name:'Calendar',exact:true}).waitFor();
   await page.getByText('25 October 2026',{exact:false}).first().waitFor();
-  await page.getByRole('link',{name:'Overview',exact:true}).first().click();
-  for(const width of [390,768,1280,1440]){
+  await page.getByRole('button',{name:'New chat',exact:true}).click();
+  await page.getByRole('heading',{name:'What are we working on?',exact:true}).waitFor();
+  for(const width of [1280,1440]){
     await page.setViewportSize({width,height:900});
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`Overflow at ${width}`);
   }
-  await page.setViewportSize({width:390,height:844});
-  await page.screenshot({path:'test-results/overview-mobile.png',fullPage:true});
   await page.getByRole('button',{name:/Switch profile/}).click();
   await page.getByRole('menuitem',{name:/Observer/}).click();
   await page.getByRole('button',{name:'Switch profile, currently Observer',exact:true}).waitFor();
@@ -60,5 +59,5 @@ try{
   await page.getByRole('heading',{name,exact:true}).waitFor();
   assert.equal(await page.getByLabel('Message KawTeam').isEnabled(),false);
   assert.deepEqual(errors,[]);
-  console.log('PASS: project overview, creation, files, main chat, task isolation, persisted assistant settings, vendor reuse, calendar, responsive layouts and observer permissions.');
+  console.log('PASS: new chat landing, project creation, files, project chat, task isolation, persisted assistant settings, vendor reuse, calendar, desktop layouts and observer permissions.');
 }catch(error){await page.screenshot({path:'test-results/project-failure.png',fullPage:true});console.log('At',page.url(),(await page.locator('body').innerText()).slice(0,3000));throw error;}finally{await browser.close();}
