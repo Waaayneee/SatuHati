@@ -29,3 +29,10 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 - `backend/.venv` on Python 3.12.6. Packages from kickoff Section 4 installed and pinned in `backend/requirements.txt`.
 - Note: `anthropic` 1.x uses `httpx2` internally. The `httpx` package stays for FastAPI's test client.
 - Check: `uvicorn app.main:app --port 8000`, then `GET /health` returned `{"status":"ok"}`.
+
+### Step 0.4. Frontend scaffold
+
+- `npx create-next-app@16.4.0 frontend` with TypeScript, Tailwind CSS v4, ESLint, App Router, `src/` dir. Next 16.4 ships with Cache Components and Partial Prefetching on.
+- Added `@supabase/supabase-js@2.117.3` and `@supabase/ssr@0.12.7`.
+- `frontend/.gitignore` now allows `.env.local.example`.
+- Check: `npm run dev`, then `GET /` returned 200.
