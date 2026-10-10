@@ -65,3 +65,15 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 | Claude test call passes | Waiting for API key |
 | `ACCESS_STATUS.md` filled | Done, HUMAN rows open |
 | One commit per step, no `.env` tracked | Done |
+
+## Phase 1
+
+### Step 1.1. Data model and migrations
+
+- SQLAlchemy models in `backend/app/models/` for all 12 tables in the kickoff, UUID keys, `created_at`/`updated_at`, `jsonb` for flexible fields. `audit_log` uses a single `at` timestamp because it is never updated.
+- `quotations.verification_state` uses the Postgres enum `verification_state` with the nine Section 11 states.
+- Extra columns needed by the flows: `missions.notes`, `missions.limits_confirmed_by/at`, `messages.proposed_total_myr`, `messages.sent_at`, `approvals.requested_on_behalf_of` (the person who ran the agent, so they cannot approve its Tier 1 request), `approvals.decided_at`, `approvals.execution_result`.
+- `audit_log.mission_id` has no foreign key on purpose, so an audit row can always be written.
+- Migration `alembic/versions/0001_phase1_initial.py` (create-table code rendered from the models, so they match). Hardening: append-only trigger on `audit_log` (blocks UPDATE, DELETE and TRUNCATE), RLS enabled with no policies on every table including `alembic_version`. Mission codes come from sequence `mission_code_seq`.
+- `alembic -x target=test upgrade head` migrates the `kawteam_test` schema.
+- Checks: `alembic upgrade head --sql` renders cleanly offline (12 tables, enum, sequence, triggers, RLS). Live `alembic upgrade head` on both targets and `python -m scripts.check_audit_append_only` are **pending the network fix**.
