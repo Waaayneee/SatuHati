@@ -23,3 +23,9 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 
 - Git repo already existed (`main`). Work happens on branch `phase-0-1`.
 - `.gitignore` covers `.venv/`, `__pycache__/`, `.pytest_cache/`, `node_modules/`, `.next/`, `.env`, `.env.local`, `*.local`. Only `.env.example` and `.env.local.example` can be committed.
+
+### Step 0.3. Backend scaffold
+
+- `backend/.venv` on Python 3.12.6. Packages from kickoff Section 4 installed and pinned in `backend/requirements.txt`.
+- Note: `anthropic` 1.x uses `httpx2` internally. The `httpx` package stays for FastAPI's test client.
+- Check: `uvicorn app.main:app --port 8000`, then `GET /health` returned `{"status":"ok"}`.
