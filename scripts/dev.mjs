@@ -1,5 +1,5 @@
 // Starts KawTeam in one window: the backend (FastAPI, port 8000) and the frontend (Next.js, port 3000).
-// Run from the project folder with `npm run dev` (or double-click start.cmd). Ctrl+C stops both.
+// Run `npm run dev` in the project folder or in frontend/ (or double-click start.cmd). Ctrl+C stops both.
 
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -133,9 +133,28 @@ process.on("SIGINT", () => stopAll(0));
 process.on("SIGTERM", () => stopAll(0));
 process.on("exit", () => children.forEach(killTree));
 
-say(`Starting KawTeam. Open http://localhost:${WEB_PORT} once it is ready. Ctrl+C stops everything.`);
+say("Starting KawTeam. Ctrl+C stops everything.");
 start("api", python, ["-m", "uvicorn", "app.main:app", "--reload", "--port", String(API_PORT)], backendDir, {
   PYTHONUNBUFFERED: "1",
 });
-start("web", process.execPath, [nextBin, "dev", "--port", String(WEB_PORT)], frontendDir);
-reportDatabase();
+
+// The frontend starts only once the backend accepts connections, so the page never loads
+// before the API exists (that is what shows up as "Failed to fetch").
+let backendUp = false;
+for (let i = 0; i < 120 && !stopping; i++) {
+  if (await portBusy(API_PORT)) {
+    backendUp = true;
+    break;
+  }
+  await new Promise((resolve) => setTimeout(resolve, 500));
+}
+if (!backendUp) {
+  if (!stopping) {
+    say(`The backend did not start on port ${API_PORT} within 60 seconds. See the [api] lines above.`, "error");
+    stopAll(1);
+  }
+} else {
+  start("web", process.execPath, [nextBin, "dev", "--port", String(WEB_PORT)], frontendDir);
+  say(`Open http://localhost:${WEB_PORT} once [web] says Ready.`);
+  reportDatabase();
+}
