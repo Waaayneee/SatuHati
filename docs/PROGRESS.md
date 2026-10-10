@@ -36,3 +36,18 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 - Added `@supabase/supabase-js@2.117.3` and `@supabase/ssr@0.12.7`.
 - `frontend/.gitignore` now allows `.env.local.example`.
 - Check: `npm run dev`, then `GET /` returned 200.
+
+### Steps 0.5 and 0.6. Supabase and Claude settings (HUMAN)
+
+- `backend/.env` and `frontend/.env.local` written from the values Wayne gave (both gitignored, checked with `git check-ignore`).
+- Frontend uses the publishable key (`sb_publishable_...`) as `NEXT_PUBLIC_SUPABASE_ANON_KEY`. No secret key anywhere in the frontend.
+- `SUPABASE_JWT_MODE=jwks`: the project's JWKS endpoint serves one ES256 key with kid `1d3a1dd0-...`.
+- `AGENT_SERVICE_TOKEN` generated with `secrets.token_urlsafe(48)` and written straight into `backend/.env` (never printed).
+- Extra optional settings: `TEST_DATABASE_SCHEMA=kawteam_test`, `ANTHROPIC_EFFORT=medium`, `ANTHROPIC_FALLBACKS=default` (server-side refusal fallback for Sonnet 5.5).
+- Open: `ANTHROPIC_API_KEY` is still empty. Wayne has no key yet.
+
+### Step 0.7. Smoke checks
+
+- `python -m scripts.check_db` runs `SELECT 1` on both URLs. `python -m scripts.check_claude` prints only the model and first reply line.
+- `GET /health` now returns `{"status": "ok", "database": "ok"}` or `"degraded"` / `"unreachable"`. Connections time out after 10 s per address instead of hanging.
+- Result on 2026-10-10: **both DB checks fail** because this network blocks outbound TCP 5432 and 6543 (`portquiz.net:5432` times out, `portquiz.net:443` works, also outside the sandbox). Claude check: key not set.
