@@ -51,3 +51,17 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 - `python -m scripts.check_db` runs `SELECT 1` on both URLs. `python -m scripts.check_claude` prints only the model and first reply line.
 - `GET /health` now returns `{"status": "ok", "database": "ok"}` or `"degraded"` / `"unreachable"`. Connections time out after 10 s per address instead of hanging.
 - Result on 2026-10-10: **both DB checks fail** because this network blocks outbound TCP 5432 and 6543 (`portquiz.net:5432` times out, `portquiz.net:443` works, also outside the sandbox). Claude check: key not set.
+
+### Step 0.8. Access status
+
+- `docs/ACCESS_STATUS.md` created with a fully bordered table. HUMAN rows: Claude key, search, email, calendar, WorkBuddy sign-in.
+
+### Phase 0 exit status
+
+| Criterion | Status |
+|---|---|
+| `/health` and Next.js home page load | Done |
+| Both DB connections pass | Blocked by network firewall on port 5432 |
+| Claude test call passes | Waiting for API key |
+| `ACCESS_STATUS.md` filled | Done, HUMAN rows open |
+| One commit per step, no `.env` tracked | Done |
