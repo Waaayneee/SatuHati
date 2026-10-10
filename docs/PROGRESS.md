@@ -135,3 +135,11 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 - The decision endpoint accepts any authenticated actor so an agent attempt is refused (403) and audited by `approval_service.decide`.
 - Refusals from create / edit / confirm are audited through `audited_refusals` before the HTTP error is returned.
 - Check: OpenAPI lists all 13 routes. Behaviour covered by Step 1.10 tests.
+
+### Step 1.10. Tests (written before the frontend)
+
+- `backend/tests/`, 48 tests. Each test runs in one outer transaction that is rolled back (SQLAlchemy `join_transaction_mode="create_savepoint"`), so the `kawteam_test` schema, including the append-only audit log, is left untouched. The session fixture runs `alembic upgrade head` on the test schema and seeds the policies. Tokens are minted with a throwaway HS256 secret; JWKS verification has its own tests with a local ES256 key.
+- Kickoff tests 1-14: `test_approval_rules.py`. Test 15: `test_missions.py`. Test 16: `test_orchestrator.py` (mocked Anthropic client: `search_suppliers` then `send_approved_message`; asserts exactly two model calls, `approval_required`, nothing sent).
+- Extra: `test_auth.py` (401/403 paths, agent token, empty token, CORS, JWKS), `test_tool_isolation.py` (no `anthropic`/`fastapi`/`mcp` imports under `app/tools/`), `test_demo_flow.py` (the whole PHASE1_DEMO script through HTTP with a scripted Claude).
+- Fix found while writing tests: `audit_log.at` now defaults to `clock_timestamp()` instead of `now()`, so rows written in one transaction keep their real order.
+- Check: 9 database-free tests pass. The 39 database tests are **pending the network fix** (port 5432 blocked).

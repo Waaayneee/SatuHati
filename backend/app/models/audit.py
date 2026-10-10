@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import DateTime, Index, Integer, Text, Uuid, func, text
+from sqlalchemy import DateTime, Index, Integer, Text, Uuid, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -18,7 +18,10 @@ class AuditLog(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid, primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()")
     )
-    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    # clock_timestamp(), not now(): rows written in one transaction keep their real order.
+    at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, server_default=text("clock_timestamp()")
+    )
     actor: Mapped[str] = mapped_column(Text, nullable=False)
     actor_role: Mapped[str | None] = mapped_column(Text)
     # No foreign key on purpose: an audit row must be writable even for a bad mission ID.

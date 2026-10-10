@@ -51,7 +51,7 @@ def upgrade() -> None:
     )
     op.create_table('audit_log',
     sa.Column('id', sa.Uuid(), server_default=sa.text('gen_random_uuid()'), nullable=False),
-    sa.Column('at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('at', sa.DateTime(timezone=True), server_default=sa.text('clock_timestamp()'), nullable=False),
     sa.Column('actor', sa.Text(), nullable=False),
     sa.Column('actor_role', sa.Text(), nullable=True),
     sa.Column('mission_id', sa.Uuid(), nullable=True),
