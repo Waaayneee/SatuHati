@@ -1,5 +1,6 @@
 """Kickoff Step 1.10, test 15: mission lifecycle and Tier 3 limit changes."""
 
+import uuid
 from decimal import Decimal
 
 from app.models import Mission
@@ -42,7 +43,7 @@ def test_mission_confirm_and_tier3_limit_change(client, db, people):
     approval = change.json()["approval"]
     assert (approval["action_type"], approval["tier"], approval["status"]) == ("change_mission_limits", 3, "pending")
     assert change.json()["updated_fields"] == []
-    assert db.get(Mission, mission["id"]).hard_budget_myr == Decimal("1500.00")
+    assert db.get(Mission, uuid.UUID(mission["id"])).hard_budget_myr == Decimal("1500.00")
 
     for member in (people.cm_a, people.cm_b):
         refused = client.post(
@@ -51,7 +52,7 @@ def test_mission_confirm_and_tier3_limit_change(client, db, people):
             headers=auth(member),
         )
         assert refused.status_code == 403
-    assert db.get(Mission, mission["id"]).hard_budget_myr == Decimal("1500.00")
+    assert db.get(Mission, uuid.UUID(mission["id"])).hard_budget_myr == Decimal("1500.00")
 
     approved = client.post(
         f"/approvals/{approval['id']}/decision",
@@ -60,7 +61,7 @@ def test_mission_confirm_and_tier3_limit_change(client, db, people):
     )
     assert approved.status_code == 200, approved.text
     assert approved.json()["status"] == "executed"
-    mission_row = db.get(Mission, mission["id"])
+    mission_row = db.get(Mission, uuid.UUID(mission["id"]))
     db.refresh(mission_row)
     assert mission_row.hard_budget_myr == Decimal("1700.00")
 

@@ -1,5 +1,6 @@
 """Kickoff Step 1.10, test 16: the Claude loop with a mocked Anthropic client."""
 
+import uuid
 from sqlalchemy import select
 
 from app.agent.claude_orchestrator import ClaudeOrchestrator
@@ -57,7 +58,7 @@ def test_loop_stops_on_approval_required_and_sends_nothing(db, people):
     ]
     assert result.approvals[0]["tier"] == 1
     assert result.approvals[0]["action_type"] == "send_enquiry"
-    approval = db.get(Approval, result.approvals[0]["approval_id"])
+    approval = db.get(Approval, uuid.UUID(result.approvals[0]["approval_id"]))
     assert (approval.status, approval.requested_by, approval.requested_on_behalf_of) == (
         "pending",
         "agent:claude",

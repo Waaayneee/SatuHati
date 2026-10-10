@@ -1,5 +1,6 @@
 """Kickoff Step 1.10, tests 1 to 14: the approval gate."""
 
+import uuid
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -65,7 +66,7 @@ def test_agent_enquiry_creates_pending_tier1_approval_and_sends_nothing(client, 
     assert result["status"] == "approval_required"
     assert result["tier"] == 1
     assert result["action_type"] == "send_enquiry"
-    approval = db.get(Approval, result["approval_id"])
+    approval = db.get(Approval, uuid.UUID(result["approval_id"]))
     assert approval.status == "pending"
     assert approval.requested_by == "agent:claude"
     assert approval.eligible_roles == ["committee_member", "hod"]
@@ -86,7 +87,7 @@ def test_requesting_member_cannot_approve_own_tier1_request(client, db, people):
 
     assert response.status_code == 403
     assert "requested this action" in response.json()["detail"]
-    assert db.get(Approval, result["approval_id"]).status == "pending"
+    assert db.get(Approval, uuid.UUID(result["approval_id"])).status == "pending"
     assert sent_count(db, mission) == 0
 
 
@@ -111,7 +112,7 @@ def test_other_member_approves_tier1_and_message_is_sent_simulated(client, db, p
     body = response.json()
     assert body["status"] == "executed"
     assert body["approver_role"] == "committee_member"
-    approval = db.get(Approval, result["approval_id"])
+    approval = db.get(Approval, uuid.UUID(result["approval_id"]))
     db.refresh(approval)
     assert approval.used_at is not None and approval.token_hash
     message = db.scalars(select(Message).where(Message.approval_id == approval.id)).one()
@@ -152,7 +153,7 @@ def test_agent_cannot_call_decision_endpoint(client, db, people):
     )
 
     assert response.status_code == 403
-    assert db.get(Approval, result["approval_id"]).status == "pending"
+    assert db.get(Approval, uuid.UUID(result["approval_id"])).status == "pending"
     refusal = db.scalars(select(AuditLog).where(AuditLog.event_type == "approval.decision_refused")).all()
     assert any(r.actor == "agent:claude" for r in refusal)
 
@@ -162,7 +163,7 @@ def test_token_cannot_be_consumed_twice(db, people):
     mission = create_active_mission(db, people)
     supplier = make_stakeholder(db)
     result = executor.execute(db, "send_approved_message", enquiry_args(supplier), AGENT_CLAUDE, mission.id)
-    approval = db.get(Approval, result["approval_id"])
+    approval = db.get(Approval, uuid.UUID(result["approval_id"]))
     hod = actor_for(db, people.hod)
     token = approve_without_running(db, approval, hod)
 
@@ -181,7 +182,7 @@ def test_expired_approval_cannot_be_approved(client, db, people):
     mission = create_active_mission(db, people)
     supplier = make_stakeholder(db)
     result = call_tool(client, mission, "send_approved_message", enquiry_args(supplier))
-    approval = db.get(Approval, result["approval_id"])
+    approval = db.get(Approval, uuid.UUID(result["approval_id"]))
     approval.expires_at = datetime.now(UTC) - timedelta(minutes=1)
     db.commit()
 
@@ -198,7 +199,7 @@ def test_expired_approval_cannot_be_executed(db, people):
     mission = create_active_mission(db, people)
     supplier = make_stakeholder(db)
     result = executor.execute(db, "send_approved_message", enquiry_args(supplier), AGENT_CLAUDE, mission.id)
-    approval = db.get(Approval, result["approval_id"])
+    approval = db.get(Approval, uuid.UUID(result["approval_id"]))
     hod = actor_for(db, people.hod)
     token = approve_without_running(db, approval, hod)
     approval.expires_at = datetime.now(UTC) - timedelta(seconds=1)
@@ -216,7 +217,7 @@ def test_changed_snapshot_is_refused_and_approval_fails(client, db, people):
     mission = create_active_mission(db, people)
     supplier = make_stakeholder(db)
     result = call_tool(client, mission, "send_approved_message", enquiry_args(supplier))
-    approval = db.get(Approval, result["approval_id"])
+    approval = db.get(Approval, uuid.UUID(result["approval_id"]))
     # Someone edits the stored content after it was submitted (hash stays the old one).
     approval.content_snapshot = {**approval.content_snapshot, "body": "Edited after submission"}
     db.commit()
@@ -234,7 +235,7 @@ def test_verify_and_consume_rejects_a_different_snapshot(db, people):
     mission = create_active_mission(db, people)
     supplier = make_stakeholder(db)
     result = executor.execute(db, "send_approved_message", enquiry_args(supplier), AGENT_CLAUDE, mission.id)
-    approval = db.get(Approval, result["approval_id"])
+    approval = db.get(Approval, uuid.UUID(result["approval_id"]))
     hod = actor_for(db, people.hod)
     token = approve_without_running(db, approval, hod)
     tampered = {**approval.content_snapshot, "recipient": "someone-else@example.test"}
@@ -333,6 +334,6 @@ def test_audit_log_is_append_only(db, statement):
 
     with pytest.raises(DBAPIError, match="append-only"):
         with db.begin_nested():
-            db.execute(text(statement), {"id": row.id})
+            db.execute(text(statement), {"id": row.id} if ":id" in statement else {})
 
     assert db.get(AuditLog, row.id).status == "ok"

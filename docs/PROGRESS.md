@@ -154,3 +154,56 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 - Backend tweak: approval summaries now include the mission's current hard budget and target for the budget bar.
 - `.claude/launch.json` added with `frontend` and `backend` dev-server entries.
 - Checks: `npm run lint` clean, `tsc --noEmit` clean, `npm run build` passes. Visual check in the browser at desktop and 375 px, light and dark, using a temporary fixture page (deleted). Signed-out visits redirect to `/login`. A live signed-in check needs the database (network) and the users' passwords.
+
+### Step 1.11. Phase 1 demo script
+
+- `docs/PHASE1_DEMO.md`: setup commands, optional dev reset for a clean `MISSION-001`, the 7 demo steps with what each screen should show, extra checks (hard budget refusal, RM bump to Tier 2, Tier 3 limit change), the scripted-Claude pytest equivalent, and the CLI.
+- Self-review of the database code paths while the tests cannot run: tests now look rows up by `uuid.UUID`, and only pass bind parameters to statements that use them.
+- Not run yet (database blocked, no Claude key). Run log in the demo file.
+
+## Phase 1 exit status
+
+<table border="1" cellspacing="0" cellpadding="6">
+  <tr><th>Criterion</th><th>Status</th></tr>
+  <tr><td>Claude orchestrator calls the demo tools through the executor</td><td>Built; covered by mocked-client tests. Live run needs the API key</td></tr>
+  <tr><td>A Committee Member can create a mission</td><td>Built (API + UI); test 15 written</td></tr>
+  <tr><td>Simulated external action blocked until the correct role approves</td><td>Built; tests 2-13 written</td></tr>
+  <tr><td>Audit log records every step</td><td>Built; append-only trigger; demo-flow test checks the events</td></tr>
+  <tr><td>All Step 1.10 tests pass</td><td>9 database-free tests pass; 39 database tests waiting for port 5432</td></tr>
+  <tr><td><code>npm run build</code> passes</td><td>Done</td></tr>
+</table>
+
+## Still to do once the network allows Postgres (Wayne's laptop on a hotspot)
+
+```powershell
+cd backend; .\.venv\Scripts\Activate.ps1
+python -m scripts.check_db
+alembic upgrade head
+alembic -x target=test upgrade head
+python -m scripts.check_audit_append_only
+python -m scripts.seed
+pytest
+```
+
+Then, with `ANTHROPIC_API_KEY` in `backend/.env`: `python -m scripts.check_claude` and the live demo in `docs/PHASE1_DEMO.md`.
+
+## Known gaps
+
+- Live database checks, seed, and the 39 database tests have not run (network). The Claude live call has not run (no key).
+- No UI form for editing mission fields or limits yet; `PATCH /missions/{id}` exists and is tested.
+- Expired approvals are marked lazily (when the inbox loads or someone decides), not by a scheduler.
+- `POST /missions/{id}/agent/run` is synchronous and can take tens of seconds.
+- The HOD confirms limits directly (audited as `confirm_mission_limits`, Tier 3) rather than through an approval record, since the HOD is the approver.
+- A `request_approval` snapshot containing exponent-style floats (e.g. `1e100`) changes form in JSONB and would fail its hash check at execution. This fails closed (refused), never open.
+
+## Open questions for Wayne
+
+- Committee Members can list and open every mission; the audit log shows them only their own missions and actions. Keep it this way?
+- The kickoff lets the HOD approve any Tier 1 item, including one the HOD requested. Keep it?
+
+## Ready for Phase 2
+
+- Goal extraction plugs in before the loop in `ClaudeOrchestrator.run` (`backend/app/agent/claude_orchestrator.py`): add a `goal_manager` service plus a Tier 0 tool (for example `extract_goal`) that turns the user's request into mission fields through `mission_service.create_mission` / `update_mission`, and a clarification result when required fields are missing. Limits it proposes still need HOD confirmation; the gate does not change.
+- Phase 3 replaces `demo_tools.search_suppliers` with real search (Brave or Tavily) that writes `evidence_sources` with `is_simulated = false`, and adds `verify_supplier`, `compare_offers`, `rank_candidates` to the same registry. `prepare_counteroffer` moves to a negotiation engine.
+- Phase 4 swaps the body of `perform_send_message` (`backend/app/tools/workflow_tools.py`) for real email. The approval, token and audit path stays exactly as is.
+- Phase 7 (WorkBuddy MCP) points at `GET /agent/tools` and `POST /agent/tools/{name}`, which are already built and tested.
