@@ -55,11 +55,12 @@ export function Composer({value,onChange,onSubmit,onAttach,disabled=false,sendin
   </form>;
 }
 
-export function MessageRow({role,label,children}:{role:'user'|'assistant';label?:string;children:ReactNode}){
-  return <div className={`kt-msg ${role}`}>{label&&<span className="kt-msg-label">{label}</span>}<div className="kt-msg-body">{children}</div></div>;
+/** `enter` animates a message that just arrived; history already on screen stays still. */
+export function MessageRow({role,label,enter=false,children}:{role:'user'|'assistant';label?:string;enter?:boolean;children:ReactNode}){
+  return <div className={`kt-msg ${role}${enter?' kt-msg-enter':''}`}>{label&&<span className="kt-msg-label">{label}</span>}<div className="kt-msg-body">{children}</div></div>;
 }
 
-export function Thinking({label='Thinking'}:{label?:string}){return <div className="kt-msg assistant"><div className="chat-thinking"><span/><span/><span/><small>{label}</small></div></div>;}
+export function Thinking({label='Thinking'}:{label?:string}){return <div className="kt-msg assistant kt-msg-enter"><div className="chat-thinking"><span/><span/><span/><small>{label}</small></div></div>;}
 
 const draftLabel={pending:'Needs approval',approved:'Approved · not sent',rejected:'Returned',sent:'Sent in demo'};
 

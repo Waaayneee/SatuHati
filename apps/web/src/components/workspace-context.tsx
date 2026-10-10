@@ -71,6 +71,6 @@ export function DemoProvider({children}:{children:ReactNode}) {
   return <Context.Provider value={{state,profile,isApi,busy,loading,connections,switchProfile,perform,refresh,acceptState:setState,notify:setToast}}>
     {connectionError&&<div className="connection-error" role="alert">{connectionError}<button onClick={()=>void refresh().catch(e=>setConnectionError(e.message))}>Retry connection</button></div>}
     {children}
-    {toast&&<div className="toast" role="status"><Icon name="check" size={18}/><span>{toast}</span><button aria-label="Dismiss notification" onClick={()=>setToast('')}><Icon name="close" size={16}/></button></div>}
+    {toast&&<div className="toast" role="status" key={toast}><Icon name="check" size={18}/><span>{toast}</span><button aria-label="Dismiss notification" onClick={()=>setToast('')}><Icon name="close" size={16}/></button></div>}
   </Context.Provider>;
 }

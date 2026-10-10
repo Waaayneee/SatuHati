@@ -112,7 +112,7 @@ export function NewChat(){
   return <div className="kt-chat">
     <input className="sr-only" ref={fileInput} type="file" multiple accept={uploadAccept} aria-label="Upload project files" onChange={e=>attach(e.target.files)}/>
     {messages.length?<>
-      <div className="kt-chat-scroll" ref={scrollPane} aria-live="polite"><div className="kt-thread">{messages.map(m=><MessageRow key={m.id} role={m.role}>{m.body&&<p>{m.body}</p>}{m.role==='assistant'&&renderCard(m)}</MessageRow>)}{working&&<Thinking label={working}/>}</div></div>
+      <div className="kt-chat-scroll" ref={scrollPane} aria-live="polite"><div className="kt-thread">{messages.map(m=><MessageRow key={m.id} role={m.role} enter>{m.body&&<p>{m.body}</p>}{m.role==='assistant'&&renderCard(m)}</MessageRow>)}{working&&<Thinking label={working}/>}</div></div>
       <div className="kt-composer-dock">{composer}</div>
     </>:<div className="kt-chat-empty">
       <h1>What are we going to <span className="kt-highlight-pill">KawTeam</span> today?</h1>

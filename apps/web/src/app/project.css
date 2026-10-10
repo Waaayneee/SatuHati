@@ -42,11 +42,10 @@ a,button{touch-action:manipulation}
 .schedule-panel>.panel-heading{padding:0 5px;margin-bottom:17px}
 .schedule-panel h2{font-size:17px;margin-top:5px}
 .schedule-panel>.panel-heading>a{color:var(--kt-text-3)}
-.kt-calendar{width:100%!important;padding:0!important;--cell-size:2.18rem!important}
+.kt-calendar{width:100%!important;padding:0!important;--cell-size:2.6rem}
 .kt-calendar [data-slot=button]{font-size:14px;box-shadow:none}
-.kt-calendar [data-slot=button][data-selected-single=true]{background:var(--kt-accent)!important;color:var(--kt-on-accent)!important;border-radius:8px}
+.kt-calendar [data-slot=button][data-selected-single=true]{background:var(--kt-accent)!important;color:var(--kt-on-accent)!important}
 .kt-calendar .scheduled-day button{position:relative}
-.kt-calendar .scheduled-day button:after{content:'';width:4px;height:4px;border-radius:50%;background:var(--kt-accent);position:absolute;bottom:4px;left:calc(50% - 2px)}
 .schedule-agenda{margin-top:18px;padding-top:15px;border-top:1px solid var(--line)}
 .agenda-heading{display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:var(--kt-text-3);padding:0 5px 4px}
 .agenda-heading button{font-size:13px;color:var(--kt-text-3);text-decoration:underline}
@@ -59,14 +58,17 @@ a,button{touch-action:manipulation}
 .agenda-item>span:nth-child(2)>small{display:block;font-size:13px;color:var(--kt-text-3);margin-top:4px;line-height:1.7}
 .agenda-item>svg{color:var(--kt-text-3)}
 .schedule-note{font-size:13px;color:var(--kt-text-3);line-height:1.8;margin:15px 5px 0}
-.large-schedule{display:grid;grid-template-columns:380px minmax(200px,1fr);gap:20px;max-width:1050px;padding:27px}
+/* Calendar page: full width, the calendar card left (~60%) and the agenda right once there is room, stacked otherwise.
+   Cells come from the page width (container units), so seven columns always fit. */
+.workspace-page:has(>.large-schedule){container-type:inline-size}
+.schedule-panel.large-schedule{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;padding:0}
 .large-schedule>.panel-heading{grid-column:1/-1;margin:0}
-.large-schedule>.kt-calendar{--cell-size:3rem!important}
-.large-schedule>.schedule-agenda{border-top:0;margin:0;padding:0 5px 0 24px;border-left:1px solid var(--line)}
-.large-schedule>.schedule-note{grid-column:1/-1}
-.large-schedule .agenda-item{padding:18px 4px}
-.large-schedule .agenda-item>span:nth-child(2)>strong{font-size:15px}
-.large-schedule .agenda-item>span:nth-child(2)>small{font-size:13px}
+.large-schedule>.kt-calendar{--kt-cal-pad:18px;padding:var(--kt-cal-pad)!important;--cell-size:min(4.5rem,calc((100cqi - 2*var(--kt-cal-pad))/7))}
+.large-schedule>.schedule-agenda{border-top:0;margin:0;padding:0}
+.large-schedule>.schedule-note{grid-column:1/-1;margin:0}
+@media(min-width:900px){@container (min-width:600px){
+.schedule-panel.large-schedule{grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:24px;align-items:start}
+.large-schedule>.kt-calendar{--cell-size:min(clamp(2.75rem,5.2vw,4.5rem),calc(((100cqi - 24px)*.6 - 2*var(--kt-cal-pad))/7))}}}
 .kt-dialog{font-family:var(--sans);border:1px solid var(--kt-line);border-radius:12px;padding:29px;background:var(--kt-surface);color:var(--ink);max-width:485px!important;gap:22px!important;box-shadow:0 24px 90px #00323f20}
 .kt-dialog [data-slot=dialog-title]{font-size:26px;font-weight:600;line-height:1.4}
 .kt-dialog [data-slot=dialog-description]{font-size:15px;line-height:1.8;color:var(--kt-text-3);margin-top:9px}
@@ -209,8 +211,7 @@ a,button{touch-action:manipulation}
 .connection-error{position:fixed;bottom:20px;left:300px;right:20px;z-index:90;background:var(--kt-warn-soft);border:1px solid var(--kt-warn-soft);border-radius:12px;padding:15px;font-size:15px}
 .connection-error button{margin-left:20px;text-decoration:underline}
 .toast{font-family:var(--sans);font-size:14px;background:var(--kt-accent);color:var(--kt-on-accent);border:1px solid var(--kt-accent);border-radius:12px;z-index:100;max-width:calc(100vw - 32px)}
-@media(min-width:1700px){.workspace-page{padding-top:48px}
-.kt-calendar{--cell-size:2.5rem!important}}
+@media(min-width:1700px){.workspace-page{padding-top:48px}}
 @media(max-width:1250px){.kt-main{margin-left:218px}
 .workspace-page,.project-workspace{padding-inline:26px}
 .kt-topbar{padding-inline:26px}
@@ -219,17 +220,13 @@ a,button{touch-action:manipulation}
 .project-heading-actions [data-slot=button]>span{display:none}
 .vendor-library-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:1050px){.schedule-panel{padding:18px 12px}
-.kt-calendar{--cell-size:1.92rem!important}
 .project-context-panel{display:none}
 .project-chat-layout{grid-template-columns:1fr}
 .task-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-.queue-bottom{flex-direction:column;align-items:flex-start}
-.large-schedule{grid-template-columns:320px minmax(180px,1fr);gap:15px}
-.large-schedule>.kt-calendar{--cell-size:2.5rem!important}}
+.queue-bottom{flex-direction:column;align-items:flex-start}}
 @media(max-width:800px){.kt-main{margin-left:195px}
 .workspace-page,.project-workspace{padding:27px 20px}
 .kt-topbar{padding:0 20px;height:65px}
-.kt-calendar{--cell-size:2rem!important}
 .project-heading-actions{gap:5px}
 .project-heading-actions [data-slot=button]{font-size:13px;padding:0 8px}
 .project-page-heading h1{font-size:26px}
@@ -239,9 +236,6 @@ a,button{touch-action:manipulation}
 .workspace-heading h1{font-size:30px}
 .workspace-heading>[data-slot=button]{font-size:13px;padding:0 12px}
 .task-grid,.vendor-library-grid{grid-template-columns:1fr}
-.large-schedule{grid-template-columns:1fr}
-.large-schedule>.schedule-agenda{border-left:0;border-top:1px solid var(--line);padding:20px 0 0}
-.large-schedule>.kt-calendar{--cell-size:2.7rem!important;max-width:370px}
 .queue-message{padding:16px;font-size:14px}
 .supplier-detail-wrap .page,.connections-wrap .page{padding:25px 20px}
 .supplier-detail-wrap .overview-grid{grid-template-columns:1fr}
@@ -262,7 +256,6 @@ a,button{touch-action:manipulation}
 .panel-heading h2{font-size:16px}
 .panel-heading p{font-size:13px;line-height:1.7}
 .schedule-panel{padding:21px 19px}
-.kt-calendar{--cell-size:2.4rem!important}
 .agenda-item>span:nth-child(2)>strong{font-size:14px}
 .agenda-item>span:nth-child(2)>small{font-size:13px}
 .kt-footer{padding:20px 0;font-size:13px}
@@ -299,8 +292,6 @@ a,button{touch-action:manipulation}
 .queue-recipient{font-size:13px;overflow-wrap:anywhere}
 .approval-count{display:none}
 .queue-footnote{font-size:13px;line-height:1.8}
-.large-schedule{padding:20px 17px}
-.large-schedule>.kt-calendar{--cell-size:2.35rem!important}
 .supplier-detail-wrap .page,.connections-wrap .page{padding:23px 17px}
 .supplier-detail-wrap .page-title,.connections-wrap .page-title{font-size:26px}
 .supplier-detail-wrap .case-heading{display:block}

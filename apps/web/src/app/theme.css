@@ -30,11 +30,14 @@
   --kt-aurora-emerald:#1f9a6a;
   --kt-aurora-forest:#1f5f3a;
   --kt-aurora-teal:#00545f;
-  /* Liquid glass material. */
-  --kt-glass-fill:linear-gradient(135deg,rgba(255,255,255,.66),rgba(255,255,255,.38));
-  --kt-glass-fill-strong:linear-gradient(135deg,rgba(255,255,255,.82),rgba(255,255,255,.6));
+  /* Liquid glass material: light and fairly opaque so text on it reads cleanly. */
+  --kt-glass-fill:linear-gradient(135deg,rgba(255,255,255,.78),rgba(255,255,255,.56));
+  --kt-glass-fill-strong:linear-gradient(135deg,rgba(255,255,255,.9),rgba(255,255,255,.74));
+  /* Faint teal tint layered over glass for small surfaces that wash out on bright aurora. */
+  --kt-tint:linear-gradient(rgba(0,84,95,.08),rgba(0,84,95,.08));
+  --kt-tint-strong:linear-gradient(rgba(0,84,95,.12),rgba(0,84,95,.12));
   --kt-glass-solid:#fbfdf8;
-  --kt-glass-blur:blur(28px) saturate(180%);
+  --kt-glass-blur:blur(20px) saturate(160%);
   --kt-glass-edge:1px solid rgba(255,255,255,.75);
   --kt-glass-highlight:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.3),inset 0 0 24px rgba(255,255,255,.25);
   --kt-glass-shadow:0 24px 60px rgba(0,84,95,.12),0 4px 12px rgba(0,84,95,.06);
@@ -46,8 +49,9 @@
   --kt-line:#e1e9da;
   --kt-line-strong:#c9d6c3;
   --kt-text:#0d2b2f;
-  --kt-text-2:#24464b;
-  --kt-text-3:#4f6a6c;
+  /* AA (4.5:1) on glass over the darkest aurora; text straight on the aurora uses --kt-text-2. */
+  --kt-text-2:#1e3f44;
+  --kt-text-3:#385659;
   --kt-accent:var(--kt-teal);
   --kt-accent-hover:#003f47;
   --kt-on-accent:#fff;
@@ -62,7 +66,7 @@
   --kt-danger-soft:#fdecea;
   --kt-material:rgba(255,255,255,.72);
   --kt-material-solid:#fff;
-  --kt-sidebar-material:linear-gradient(180deg,rgba(255,255,255,.64),rgba(255,255,255,.44));
+  --kt-sidebar-material:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,.62));
   --kt-sidebar-solid:#f3f8ec;
   --kt-sidebar-text:var(--kt-text);
   --kt-sidebar-text-2:var(--kt-text-2);
@@ -79,6 +83,14 @@
   --kt-spring-duration:.5s;
   --kt-spring-bounce:linear(0,0.052,0.171,0.316,0.464,0.598,0.712,0.805,0.875,0.927,0.964,0.988,1.003,1.011,1.014,1.015,1.014,1.012,1.01,1.008,1.006,1.004,1.003,1.002,1); /* damping .8, response .3s */
   --kt-spring-bounce-duration:.4s;
+  /* Motion: one small overshoot, never a wobble. Animate transform and opacity only. */
+  --kt-ease-bounce:cubic-bezier(.34,1.56,.64,1); /* hover lift, pop-ins */
+  --kt-ease-spring:cubic-bezier(.22,1.2,.36,1);  /* larger surfaces */
+  --kt-ease-out:cubic-bezier(.16,1,.3,1);        /* fades, the background */
+  --kt-dur-press:120ms;
+  --kt-dur-hover:220ms;
+  --kt-dur-enter:380ms;
+  --kt-dur-bg:1200ms;
   /* Earlier variable names used across the stylesheets. */
   --canvas:var(--kt-bg);--paper:var(--kt-surface);--rail:var(--kt-surface-2);--ink:var(--kt-text);--muted:var(--kt-text-3);
   --green:var(--kt-accent);--lime:var(--kt-accent-soft);--line:var(--kt-line);--amber:var(--kt-warn);--serif:var(--kt-font);--sans:var(--kt-font);
@@ -136,6 +148,16 @@ h3{letter-spacing:-.01em;line-height:1.15}
 .page-kicker,.section-caption,.eyebrow,.small-label{font-size:var(--kt-size-xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--kt-text-3)}
 small,.kt-chat-note,.kt-msg-label{letter-spacing:0}
 .kt-msg-body>p{font-size:var(--kt-size-msg);line-height:1.6;letter-spacing:-.006em}
+/* Bolder text is always 700 (no 500/600 face): titles, card titles, names, labels. Body and meta stay 400. */
+:is(.panel-empty h1,.panel-empty h2,.context-panel-heading h2,.context-files-heading h3,.context-tasks-heading h3,.task-tile h3,.queue-card h2,.vendor-record h2,.file-dropzone h3,.connection-card h3,.dialog-head h2,.evidence-identity h3,.confirm-vendor h3,.empty h3,.next-step h3,.decision-card h3,.outcome-report-heading h2,.outcome-summary h3,.thread-header h3),
+:is(.kt-vendor-info strong,.request-row-head strong,.activity-item strong,.project-file-row strong,.story-strip strong,.vendor-cell strong,.activity-row strong,.selected-notice strong,.source-slip strong,.agenda-item strong,.agenda-date strong,.agenda-heading>span),
+:is(.sidebar-project-link,.vendor-table th,.report-table th,.badge,.activity-kind-tag,.approval-count,.kt-chosen,.kt-card-link,.subtle-link,.text-action,.button.ghost,.filter-toggle,.queue-filters>button.active,.file-extension,.kt-draft-head){font-weight:700}
+.kt-dialog [data-slot=dialog-title]{font-weight:700}
+/* Text straight on the aurora (no glass behind it) uses the darker secondary colour. */
+:is(.workspace-heading p,.page-kicker,.page-intro,.kt-footer,.kt-msg-label,.chat-thinking,.queue-footnote,.quiet-empty,.panel-empty,.task-parent-link,.project-page-heading p,.case-heading .eyebrow,.section-head .eyebrow,.decision-intro .eyebrow){color:var(--kt-text-2)}
+.panel-empty>svg,.panel-empty p{color:var(--kt-text-2)}
+/* Large headings on the aurora get a faint highlight edge. */
+:is(.workspace-heading h1,.project-title-line h1,.kt-chat-empty>h1,.panel-empty h1,.panel-empty h2,.case-heading .page-title,.view-heading h2,.decision-intro h2,.section-head h2,.connections-section>h2){text-shadow:0 1px 0 rgba(255,255,255,.6)}
 @media (max-width:650px){
   .kt-chat-empty>h1{font-size:34px}
   .workspace-heading h1,.page-title,.project-title-line h1,.panel-empty h1{font-size:30px}
@@ -143,7 +165,9 @@ small,.kt-chat-note,.kt-msg-label{letter-spacing:0}
 
 /* Aurora: a fixed, very soft background behind the whole app (layout.tsx), plus film grain. */
 .kt-aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:var(--kt-bg)}
-.kt-aurora>span{position:absolute;border-radius:50%;will-change:transform;animation:kt-drift 56s ease-in-out infinite alternate}
+/* The drift moves in ~0.5px steps about four times a second instead of every frame: it looks the same at this
+   speed, and the frames in between (and the blur over the aurora) are not redrawn. */
+.kt-aurora>span{position:absolute;border-radius:50%;animation:kt-drift 56s steps(120) infinite alternate}
 .kt-aurora>span:nth-child(1){width:78vmax;height:62vmax;left:-24vmax;top:-30vmax;background:radial-gradient(closest-side,color-mix(in srgb,var(--kt-aurora-lime) 42%,transparent),transparent);animation-duration:52s}
 .kt-aurora>span:nth-child(2){width:62vmax;height:70vmax;right:-22vmax;top:-12vmax;background:radial-gradient(closest-side,color-mix(in srgb,var(--kt-aurora-mint) 70%,transparent),transparent);animation-duration:64s;animation-delay:-18s}
 .kt-aurora>span:nth-child(3){width:46vmax;height:52vmax;right:-8vmax;top:30vh;background:radial-gradient(closest-side,color-mix(in srgb,var(--kt-aurora-emerald) 20%,transparent),transparent);animation-duration:47s;animation-delay:-9s}
@@ -151,6 +175,28 @@ small,.kt-chat-note,.kt-msg-label{letter-spacing:0}
 .kt-aurora>span:nth-child(5){width:58vmax;height:42vmax;right:-14vmax;bottom:-24vmax;background:radial-gradient(closest-side,color-mix(in srgb,var(--kt-aurora-forest) 14%,transparent),transparent);animation-duration:58s;animation-delay:-41s}
 .kt-aurora::after{content:"";position:absolute;inset:0;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");background-size:180px 180px}
 @keyframes kt-drift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(4vmax,3vmax,0) scale(1.08)}100%{transform:translate3d(-3vmax,5vmax,0) scale(.96)}}
+/* The aurora reacts to navigation (aurora.tsx sets data-view). Each view moves, scales and fades the five blobs
+   through the individual translate/scale properties, so the route shift stacks on top of the kt-drift transform. */
+.kt-aurora>span{will-change:transform,translate,scale,opacity;transition:translate var(--kt-dur-bg) var(--kt-ease-spring),scale var(--kt-dur-bg) var(--kt-ease-spring),opacity 800ms var(--kt-ease-out)}
+.kt-aurora>span:nth-child(1){translate:var(--b1-x,0px) var(--b1-y,0px);scale:var(--b1-s,1);opacity:var(--b1-o,1)}
+.kt-aurora>span:nth-child(2){translate:var(--b2-x,0px) var(--b2-y,0px);scale:var(--b2-s,1);opacity:var(--b2-o,1)}
+.kt-aurora>span:nth-child(3){translate:var(--b3-x,0px) var(--b3-y,0px);scale:var(--b3-s,1);opacity:var(--b3-o,1)}
+.kt-aurora>span:nth-child(4){translate:var(--b4-x,0px) var(--b4-y,0px);scale:var(--b4-s,1);opacity:var(--b4-o,1)}
+.kt-aurora>span:nth-child(5){translate:var(--b5-x,0px) var(--b5-y,0px);scale:var(--b5-s,1);opacity:var(--b5-o,1)}
+/* chat: the resting layout (lime top left). */
+.kt-aurora[data-view=tasks]{--b1-x:6vmax;--b2-y:6vmax;--b3-x:-6vmax;--b3-s:.94}
+.kt-aurora[data-view=files]{--b1-x:4vmax;--b1-y:6vmax;--b4-y:-8vmax;--b4-s:1.1;--b5-s:1.08}
+.kt-aurora[data-view=vendors]{--b2-s:1.1;--b4-x:10vmax;--b4-y:-6vmax;--b1-o:.85}
+.kt-aurora[data-view=activity]{--b1-s:.9;--b1-o:.85;--b2-x:-10vmax;--b3-y:-10vmax}
+.kt-aurora[data-view=approvals]{--b1-x:6vmax;--b1-y:4vmax;--b1-s:1.18;--b2-o:.8;--b3-o:.7;--b5-o:.8}
+.kt-aurora[data-view=calendar]{--b1-s:.95;--b2-x:8vmax;--b3-x:10vmax;--b3-y:-4vmax;--b3-s:1.12}
+.kt-aurora[data-view=connections]{--b1-s:.9;--b1-o:.75;--b4-x:14vmax;--b4-y:-10vmax;--b4-s:1.2;--b5-x:-8vmax}
+.kt-aurora[data-view=cases]{--b1-x:10vmax;--b1-y:8vmax;--b1-s:1.08;--b2-x:-8vmax;--b2-y:6vmax;--b3-x:-6vmax;--b4-x:6vmax;--b4-y:-6vmax;--b5-x:-6vmax;--b5-y:-6vmax;--b5-s:1.08}
+/* One soft breath per route change; a/b alternate so the one-shot animation restarts without a remount. */
+.kt-aurora[data-breath=a]{animation:kt-breath-a 900ms var(--kt-ease-out)}
+.kt-aurora[data-breath=b]{animation:kt-breath-b 900ms var(--kt-ease-out)}
+@keyframes kt-breath-a{50%{scale:1.03}}
+@keyframes kt-breath-b{50%{scale:1.03}}
 
 /* Liquid glass: translucent fill, blur and saturate, bright edge, inner glow, specular rim. */
 .kt-glass,.kt-glass-strong{position:relative;isolation:isolate;background:var(--kt-glass-fill);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);border:var(--kt-glass-edge);box-shadow:var(--kt-glass-highlight),var(--kt-glass-shadow)}
@@ -167,15 +213,13 @@ small,.kt-chat-note,.kt-msg-label{letter-spacing:0}
 .kt-footer{margin-inline:32px;border-top:1px solid var(--kt-line);color:var(--kt-text-3)}
 
 /* Sidebar: light frosted glass; lime for the primary action, pale lime for selection, faint teal hover. */
-.kt-sidebar{position:fixed;inset:0 auto 0 0;z-index:40;width:300px;display:flex;flex-direction:column;padding:16px 14px 14px;background:var(--kt-sidebar-material);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);border-right:var(--kt-glass-edge);box-shadow:inset -1px 0 0 rgba(255,255,255,.9),inset 0 1px 0 rgba(255,255,255,.95),12px 0 40px rgba(0,84,95,.06);color:var(--kt-sidebar-text)}
-.kt-brand{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 10px;font-size:22px;font-weight:700;letter-spacing:-.03em;color:var(--kt-sidebar-text)}
-.kt-brand>span:first-child{width:34px;height:34px;flex:none;display:grid;place-items:center;border-radius:10px;background:var(--kt-teal);color:var(--kt-pale-lime);font-size:18px;font-weight:700;letter-spacing:-.02em;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
-.brand-tiny-dot{display:none}
-.kt-new-chat{display:flex;align-items:center;gap:10px;min-height:48px;margin:10px 0 18px;padding:0 12px;border:1px solid var(--kt-sidebar-line);border-radius:var(--kt-radius-pill);background:var(--kt-lime);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 6px 18px rgba(0,84,95,.12);color:var(--kt-sidebar-text);font-size:var(--kt-size-md);font-weight:700;transition:background-color .2s,box-shadow .2s,transform var(--kt-spring-duration) var(--kt-spring)}
-.kt-new-chat:hover{background:var(--kt-highlight-hover)}
-.kt-nav-link{display:flex;align-items:center;gap:10px;min-height:44px;margin:1px 0;padding:8px 10px;border-radius:14px;color:var(--kt-sidebar-text-2);font-size:var(--kt-size-md);font-weight:400;transition:background-color .2s,color .2s}
+.kt-sidebar{position:fixed;inset:0 auto 0 0;z-index:40;width:300px;display:flex;flex-direction:column;padding:16px 14px 14px;background:var(--kt-sidebar-material);border-right:var(--kt-glass-edge);box-shadow:inset -1px 0 0 rgba(255,255,255,.9),inset 0 1px 0 rgba(255,255,255,.95),12px 0 40px rgba(0,84,95,.06);color:var(--kt-sidebar-text)}
+.kt-brand{display:flex;align-items:center;min-height:52px;padding:0 10px}
+/* The KawTeam wordmark (public/brand); the width follows the image ratio. */
+.kt-brand>img{display:block;width:auto;height:36px}
+.kt-new-chat{display:flex;align-items:center;gap:10px;min-height:48px;margin:10px 0 18px;padding:0 12px;border:1px solid var(--kt-sidebar-line);border-radius:var(--kt-radius-pill);background:var(--kt-lime);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 6px 18px rgba(0,84,95,.12);color:var(--kt-sidebar-text);font-size:var(--kt-size-md);font-weight:700}
+.kt-nav-link{display:flex;align-items:center;gap:10px;min-height:44px;margin:1px 0;padding:8px 10px;border-radius:14px;color:var(--kt-sidebar-text-2);font-size:var(--kt-size-md);font-weight:400}
 .kt-nav-link>svg{flex:none;color:var(--kt-sidebar-text-3)}
-.kt-nav-link:hover{background:var(--kt-sidebar-hover)}
 .kt-nav-link.active{background:var(--kt-pale-lime);color:var(--kt-teal);font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
 .kt-nav-link.active>svg{color:var(--kt-teal)}
 .kt-nav-link>span:last-child{margin-left:auto;min-width:20px;height:20px;display:grid;place-items:center;padding:0 6px;border-radius:999px;background:var(--kt-sidebar-hover-strong);color:var(--kt-sidebar-text-2);font-size:var(--kt-size-xs);font-weight:700}
@@ -187,25 +231,22 @@ small,.kt-chat-note,.kt-msg-label{letter-spacing:0}
 .kt-subnav[data-open=true]{grid-template-rows:1fr;opacity:1}
 .kt-subnav>div{min-height:0;overflow:hidden;padding-left:8px;border-left:1px solid var(--kt-sidebar-line)}
 .sidebar-project-heading{display:flex;align-items:center;margin:22px 10px 6px;font-size:var(--kt-size-xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--kt-sidebar-text-3)}
-.sidebar-project-list{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--kt-line-strong) transparent}
-.sidebar-new-project{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;margin-bottom:2px;padding:8px 10px;border-radius:14px;color:var(--kt-sidebar-text-2);font-size:var(--kt-size-md);font-weight:400;text-align:left;transition:background-color .2s}
-.sidebar-new-project:hover:not(:disabled){background:var(--kt-sidebar-hover)}
+.sidebar-project-list{flex:1;min-height:0;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--kt-line-strong) transparent}
+.sidebar-new-project{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;margin-bottom:2px;padding:8px 10px;border-radius:14px;color:var(--kt-sidebar-text-2);font-size:var(--kt-size-md);font-weight:400;text-align:left}
 .sidebar-new-project>svg{color:var(--kt-sidebar-text-3)}
-.sidebar-project-link{display:flex;align-items:center;gap:10px;min-height:44px;margin:1px 0;padding:8px 10px;border-radius:14px;color:var(--kt-sidebar-text-2);font-size:var(--kt-size-md);transition:background-color .2s}
+.sidebar-project-link{display:flex;align-items:center;gap:10px;min-height:44px;margin:1px 0;padding:8px 10px;border-radius:14px;color:var(--kt-sidebar-text-2);font-size:var(--kt-size-md)}
 .sidebar-project-link>svg{flex:none;color:var(--kt-sidebar-text-3)}
 .sidebar-project-link>span{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.sidebar-project-link:hover{background:var(--kt-sidebar-hover)}
 .sidebar-project-link.selected{background:var(--kt-pale-lime);color:var(--kt-teal);font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
 .sidebar-project-link.selected>svg{color:var(--kt-teal)}
 .sidebar-task-list{margin:2px 0 6px 22px;padding-left:8px;border-left:1px solid var(--kt-sidebar-line)}
-.sidebar-task-list>a{display:flex;align-items:center;gap:8px;min-height:40px;padding:6px 8px;border-radius:12px;color:var(--kt-sidebar-text-3);font-size:var(--kt-size-sm);transition:background-color .2s}
-.sidebar-task-list>a:hover{background:var(--kt-sidebar-hover)}
+.sidebar-task-list>a{display:flex;align-items:center;gap:8px;min-height:40px;padding:6px 8px;border-radius:12px;color:var(--kt-sidebar-text-3);font-size:var(--kt-size-sm)}
 .sidebar-task-list>a.active{background:var(--kt-sidebar-hover-strong);color:var(--kt-sidebar-text);font-weight:700}
 .sidebar-task-list>a>span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .sidebar-empty{display:block;padding:10px;font-size:var(--kt-size-sm);color:var(--kt-sidebar-text-3)}
 .sidebar-bottom-nav{margin-top:10px;padding-top:10px;border-top:1px solid var(--kt-sidebar-line)}
-.kt-sidebar-profile{display:flex;align-items:center;gap:10px;width:100%;min-height:60px;margin-top:6px;padding:8px 10px;border-radius:18px;color:var(--kt-sidebar-text);text-align:left;transition:background-color .2s}
-.kt-sidebar-profile:hover,.kt-sidebar-profile[data-state=open]{background:var(--kt-sidebar-hover)}
+.kt-sidebar-profile{display:flex;align-items:center;gap:10px;width:100%;min-height:60px;margin-top:6px;padding:8px 10px;border-radius:18px;color:var(--kt-sidebar-text);text-align:left}
+.kt-sidebar-profile[data-state=open]{background:var(--kt-sidebar-hover)}
 .kt-sidebar-profile .kt-profile-avatar{flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:var(--kt-pale-lime);color:var(--kt-teal);font-size:var(--kt-size-xs);font-weight:700;box-shadow:inset 0 0 0 1px rgba(0,84,95,.12)}
 .kt-sidebar-profile-text{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:var(--kt-size-md);font-weight:700}
 .kt-sidebar-profile-text small{display:block;margin-top:1px;font-size:var(--kt-size-sm);font-weight:400;color:var(--kt-sidebar-text-3)}
@@ -213,13 +254,12 @@ small,.kt-chat-note,.kt-msg-label{letter-spacing:0}
 .kt-sidebar-backdrop{position:fixed;inset:0;z-index:35;background:var(--kt-scrim)}
 .kt-sidebar-close{display:none}
 
-.kt-brand>span:first-child{background:var(--kt-lime);color:var(--kt-teal)}
 .kt-new-chat{color:var(--kt-teal);border-color:transparent}
 .kt-sidebar .kt-nav-link>span:last-child{background:var(--kt-pale-lime);color:var(--kt-teal)}
 .kt-sidebar .kt-nav-link.active>span:last-child{background:var(--kt-teal);color:var(--kt-pale-lime)}
 
 /* Menus and dialogs: thicker material, anchored to their trigger. */
-.kt-profile-menu{width:280px;padding:8px;border:var(--kt-glass-edge);border-radius:var(--kt-radius-menu);background:var(--kt-glass-fill-strong);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);box-shadow:var(--kt-glass-highlight),var(--kt-glass-shadow);color:var(--kt-text);transform-origin:var(--radix-dropdown-menu-content-transform-origin);animation:kt-materialize var(--kt-spring-duration) var(--kt-spring)}
+.kt-profile-menu{width:280px;padding:8px;border:var(--kt-glass-edge);border-radius:var(--kt-radius-menu);background:var(--kt-glass-fill-strong);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);box-shadow:var(--kt-glass-highlight),var(--kt-glass-shadow);color:var(--kt-text);transform-origin:var(--radix-dropdown-menu-content-transform-origin);animation:kt-materialize 220ms var(--kt-ease-bounce) both}
 .kt-profile-menu [data-slot=dropdown-menu-item]{gap:12px;min-height:52px;border-radius:16px;font-size:var(--kt-size-md);color:var(--kt-text)}
 .kt-profile-menu [data-slot=dropdown-menu-item]:focus,.kt-profile-menu [data-slot=dropdown-menu-item][data-highlighted]{background:var(--kt-sidebar-hover-strong);color:var(--kt-text)}
 .kt-profile-menu [data-slot=dropdown-menu-label]{font-size:var(--kt-size-xs);font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--kt-text-3)}
@@ -248,41 +288,41 @@ dialog.dialog::backdrop{background:var(--kt-scrim)}
 .kt-composer-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
 .kt-composer-tools{display:flex;align-items:center;gap:6px;min-width:0}
 .kt-composer-icon{width:44px;height:44px;color:var(--kt-text-2)}
-.kt-composer-icon:hover:not(:disabled){background:rgba(0,84,95,.08)}
-.kt-composer-send{width:44px;height:44px;background:linear-gradient(180deg,#0b6b77,var(--kt-teal));color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 6px 16px rgba(0,84,95,.28);transition:background-color .2s,transform var(--kt-spring-duration) var(--kt-spring)}
-.kt-composer-send:hover:not(:disabled){background:linear-gradient(180deg,var(--kt-teal),var(--kt-accent-hover))}
+.kt-composer-send{width:44px;height:44px;background:linear-gradient(180deg,#0b6b77,var(--kt-teal));color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 6px 16px rgba(0,84,95,.28)}
 .kt-composer-send:disabled{background:var(--kt-fill-strong);color:var(--kt-text-3);box-shadow:none}
 /* Projects pill (bottom left of the composer). */
 .kt-project-control{display:inline-flex;align-items:center;min-width:0;max-width:min(340px,52vw);border-radius:var(--kt-radius-pill)}
-.kt-project-pill{display:inline-flex;align-items:center;gap:8px;height:40px;min-width:0;max-width:100%;padding:0 16px 0 14px;border:var(--kt-glass-edge);border-radius:var(--kt-radius-pill);background:var(--kt-glass-fill);box-shadow:var(--kt-glass-highlight),0 2px 8px rgba(0,84,95,.06);color:var(--kt-text-2);font-size:var(--kt-size-sm);font-weight:700;white-space:nowrap;transition:background-color .2s,border-color .2s}
+.kt-project-pill{display:inline-flex;align-items:center;gap:8px;height:40px;min-width:0;max-width:100%;padding:0 16px 0 14px;border:var(--kt-glass-edge);border-radius:var(--kt-radius-pill);background:var(--kt-tint),var(--kt-glass-fill);box-shadow:var(--kt-glass-highlight),0 2px 8px rgba(0,84,95,.06);color:var(--kt-text-2);font-size:var(--kt-size-sm);font-weight:700;white-space:nowrap}
 .kt-project-pill>svg{flex:none}
 .kt-project-pill>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
-.kt-project-pill:hover:not(:disabled):not([aria-disabled=true]),.kt-project-pill[data-state=open]{border-color:rgba(0,84,95,.18);background:rgba(255,255,255,.9)}
+.kt-project-pill[data-state=open]{border-color:rgba(0,84,95,.18);background:rgba(255,255,255,.9)}
 .kt-project-control.selected{background:var(--kt-pale-lime);box-shadow:inset 0 0 0 1px rgba(0,84,95,.14),inset 0 1px 0 rgba(255,255,255,.7)}
 .kt-project-control.selected .kt-project-pill{border-color:transparent;background:transparent;box-shadow:none;color:var(--kt-teal)}
-.kt-project-control.selected .kt-project-pill:hover:not([aria-disabled=true]),.kt-project-control.selected .kt-project-pill[data-state=open]{background:rgba(0,84,95,.06)}
+.kt-project-control.selected .kt-project-pill[data-state=open]{background:rgba(0,84,95,.06)}
 .kt-project-control.selected:not(.locked) .kt-project-pill{padding-right:6px}
 .kt-project-control.locked .kt-project-pill{cursor:default}
 .kt-project-clear{flex:none;width:30px;height:30px;margin-right:5px;display:grid;place-items:center;border-radius:50%;color:var(--kt-teal)}
-.kt-project-clear:hover{background:rgba(0,84,95,.1)}
 .kt-project-menu-name{flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .kt-chat-note{color:var(--kt-text-2)}
-.kt-msg{animation:kt-rise var(--kt-spring-duration) var(--kt-spring) both}
+/* Only a message that just arrived animates: the user's bubble pops in slightly from the right, replies fade up. */
+.kt-msg.kt-msg-enter.user{animation:kt-msg-user var(--kt-dur-enter) var(--kt-ease-spring) both}
+.kt-msg.kt-msg-enter.assistant{animation:kt-rise var(--kt-dur-enter) var(--kt-ease-out) both}
+@keyframes kt-msg-user{from{opacity:0;transform:translate(14px,8px) scale(.98)}}
 .kt-msg.user>.kt-msg-body{background:var(--kt-pale-lime);border:1px solid rgba(255,255,255,.85);border-radius:22px;padding:12px 18px;box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 6px 18px rgba(0,84,95,.08)}
 .kt-msg-label{font-size:var(--kt-size-xs);font-weight:700;color:var(--kt-text-3)}
 .kt-msg-body>p{color:var(--kt-text)}
 @keyframes kt-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.kt-chips>button{min-height:44px;padding:10px 18px;border:var(--kt-glass-edge);border-radius:var(--kt-radius-pill);background:var(--kt-glass-fill);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);box-shadow:var(--kt-glass-highlight),0 4px 14px rgba(0,84,95,.06);color:var(--kt-text-2);font-size:var(--kt-size-sm);font-weight:700;transition:background-color .2s,border-color .2s,transform var(--kt-spring-duration) var(--kt-spring)}
-.kt-chips>button:hover:not(:disabled){background:rgba(255,255,255,.88);border-color:rgba(0,84,95,.16)}
+.kt-chips>button{min-height:44px;padding:10px 18px;border:var(--kt-glass-edge);border-radius:var(--kt-radius-pill);background:var(--kt-tint),var(--kt-glass-fill);box-shadow:var(--kt-glass-highlight),0 4px 14px rgba(0,84,95,.06);color:var(--kt-text-2);font-size:var(--kt-size-sm);font-weight:700}
 /* Headline highlight pill (reference trick, used sparingly). */
 .kt-highlight-pill{display:inline-block;padding:0 .26em .05em;border-radius:var(--kt-radius-pill);background:var(--kt-pale-lime);box-shadow:inset 0 0 0 1px rgba(0,84,95,.12),inset 0 1px 0 rgba(255,255,255,.8);color:var(--kt-teal)}
 
-/* Cards: liquid glass with a specular rim. */
+/* Cards: liquid glass with a specular rim. Cards, chips, pills, tabs, buttons and the sidebar skip live blur:
+   they sit on the soft aurora, where blur looks the same but costs a full re-blur every frame it drifts.
+   Live blur stays on surfaces that content scrolls under: topbar, composer, menus, dialogs, toasts. */
 .kt-card,.queue-card,.vendor-record,.connection-card,.activity-list,.request-list,.schedule-panel,.project-context-panel,.project-file-row,.task-tile,
-.supplier-detail-wrap :is(.paper,.decision-card,.table-scroll,.thread-list,.message,.story-strip,.activity-paper,.outcome-report,.next-step,.draft-card){position:relative;isolation:isolate;border:var(--kt-glass-edge);border-radius:var(--kt-radius-card);background:var(--kt-glass-fill);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);box-shadow:var(--kt-glass-highlight),var(--kt-glass-shadow)}
+.supplier-detail-wrap :is(.paper,.decision-card,.table-scroll,.thread-list,.message,.story-strip,.activity-paper,.outcome-report,.next-step,.draft-card){position:relative;isolation:isolate;border:var(--kt-glass-edge);border-radius:var(--kt-radius-card);background:var(--kt-glass-fill);box-shadow:var(--kt-glass-highlight),var(--kt-glass-shadow)}
 :is(.kt-card,.queue-card,.vendor-record,.connection-card,.activity-list,.request-list,.schedule-panel,.project-context-panel,.project-file-row,.task-tile)::after,
 .supplier-detail-wrap :is(.paper,.decision-card,.thread-list,.message,.story-strip,.activity-paper,.outcome-report,.next-step,.draft-card)::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;padding:1px;pointer-events:none;background:var(--kt-glass-rim);opacity:.8;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
-.project-file-row:hover,.task-tile:hover,.vendor-record:hover{border-color:rgba(255,255,255,.95);background:linear-gradient(135deg,rgba(255,255,255,.8),rgba(255,255,255,.52))}
 .supplier-detail-wrap .decision-card.team-choice{box-shadow:inset 0 0 0 2px var(--kt-teal),var(--kt-glass-shadow)}
 .supplier-detail-wrap .message.sent{background:linear-gradient(135deg,rgba(236,255,182,.7),rgba(236,255,182,.45))}
 .kt-card-head{border-bottom-color:rgba(0,84,95,.08)}
@@ -299,49 +339,194 @@ dialog.dialog::backdrop{background:var(--kt-scrim)}
 .vendor-table th{background:rgba(255,255,255,.4)}
 .vendor-table td{border-top-color:rgba(0,84,95,.08)}
 .activity-item+.activity-item,.request-row+.request-row{border-top-color:rgba(0,84,95,.08)}
-.activity-item:hover{background:rgba(255,255,255,.45)}
 
 /* Status labels: tinted pills. */
-.status-label{border-radius:var(--kt-radius-pill);padding:5px 11px;background:rgba(0,84,95,.08);color:var(--kt-text);font-size:var(--kt-size-xs);font-weight:700}
+.status-label{border-radius:var(--kt-radius-pill);padding:5px 11px;background:rgba(0,84,95,.12);color:var(--kt-text);font-size:var(--kt-size-xs);font-weight:700}
 .status-label.amber{background:var(--kt-warn-soft);color:var(--kt-warn)}
 .kt-card-head .status-label{color:var(--kt-text)}
 .kt-card-head .status-label.amber{color:var(--kt-warn)}
 
 /* Glass pills: filters, section jumps, citations. */
-.connections-jump>a,.queue-filters>button,.project-citations button{border:var(--kt-glass-edge);border-radius:var(--kt-radius-pill);background:var(--kt-glass-fill);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);box-shadow:var(--kt-glass-highlight),0 2px 8px rgba(0,84,95,.05);color:var(--kt-text-2);font-size:var(--kt-size-sm);font-weight:700}
+.connections-jump>a,.queue-filters>button,.project-citations button{border:var(--kt-glass-edge);border-radius:var(--kt-radius-pill);background:var(--kt-tint),var(--kt-glass-fill);box-shadow:var(--kt-glass-highlight),0 2px 8px rgba(0,84,95,.05);color:var(--kt-text-2);font-size:var(--kt-size-sm);font-weight:700}
 .connections-jump>a,.queue-filters>button{padding:10px 18px}
-.connections-jump>a:hover,.queue-filters>button:hover,.project-citations button:hover{background:rgba(255,255,255,.88)}
 .queue-filters{border-bottom:0}
 .queue-filters>button.active{background:var(--kt-pale-lime);color:var(--kt-teal)}
 .project-citations button{padding:6px 12px;font-size:var(--kt-size-xs)}
 
-/* Tabs: a glass segmented pill, pale lime for the current tab. */
-.project-tabs,.supplier-detail-wrap .case-tabs{display:flex;width:fit-content;max-width:100%;gap:4px;padding:5px;margin:22px 0 18px;border:var(--kt-glass-edge);border-radius:var(--kt-radius-pill);background:var(--kt-glass-fill);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);box-shadow:var(--kt-glass-highlight),0 6px 18px rgba(0,84,95,.06);overflow-x:auto;scrollbar-width:none}
-.project-tabs>a,.supplier-detail-wrap .case-tabs>a{padding:10px 18px;border:0;border-radius:var(--kt-radius-pill);font-size:var(--kt-size-sm);font-weight:400;color:var(--kt-text-2);white-space:nowrap;transition:background-color .2s,color .2s}
-.project-tabs>a:hover,.supplier-detail-wrap .case-tabs>a:hover{background:rgba(255,255,255,.7)}
-.project-tabs>a.active,.supplier-detail-wrap .case-tabs>a.active{background:var(--kt-pale-lime);color:var(--kt-teal);font-weight:700;border:0;box-shadow:inset 0 1px 0 rgba(255,255,255,.75)}
-.project-tabs>a.active::after{display:none}
-.project-tabs>a>span,.supplier-detail-wrap .case-tabs span{border-radius:var(--kt-radius-pill);padding:1px 8px;background:rgba(0,84,95,.08);color:var(--kt-text-2);font-size:var(--kt-size-xs)}
+/* Tabs: a glass segmented pill; the current tab's pale lime pill is a single ::after indicator that slides
+   from the previously active tab (use-tab-indicator.ts sets --kt-tab-from-x/-sx and data-slide). */
+.project-tabs,.supplier-detail-wrap .case-tabs{position:relative;display:flex;width:fit-content;max-width:100%;gap:4px;padding:5px;margin:22px 0 18px;border:var(--kt-glass-edge);border-radius:var(--kt-radius-pill);background:var(--kt-tint-strong),var(--kt-glass-fill);box-shadow:var(--kt-glass-highlight),0 6px 18px rgba(0,84,95,.06);overflow-x:auto;scrollbar-width:none}
+.project-tabs>a,.supplier-detail-wrap .case-tabs>a{isolation:isolate;padding:10px 18px;border:0;border-radius:var(--kt-radius-pill);font-size:var(--kt-size-sm);font-weight:400;color:var(--kt-text-2);white-space:nowrap;transition:none}
+.project-tabs>a.active,.supplier-detail-wrap .case-tabs>a.active{background:transparent;color:var(--kt-teal);font-weight:700;border:0}
+.project-tabs>a.active::after,.supplier-detail-wrap .case-tabs>a.active::after{content:"";display:block;position:absolute;inset:0;height:auto;z-index:-1;border-radius:inherit;background:var(--kt-pale-lime);box-shadow:inset 0 1px 0 rgba(255,255,255,.75);transform-origin:left center;pointer-events:none}
+.project-tabs>a.active[data-slide]::after,.supplier-detail-wrap .case-tabs>a.active[data-slide]::after{animation:kt-tab-slide 300ms var(--kt-ease-spring) both}
+@keyframes kt-tab-slide{from{translate:var(--kt-tab-from-x,0px) 0;scale:var(--kt-tab-from-sx,1) 1}}
+.project-tabs>a>span,.supplier-detail-wrap .case-tabs span{border-radius:var(--kt-radius-pill);padding:1px 8px;background:rgba(0,84,95,.12);color:var(--kt-text-2);font-size:var(--kt-size-xs)}
 
 /* Buttons: teal with a soft gradient and inner highlight; outline and ghost are glass; pills. */
-[data-slot=button]{border-radius:var(--kt-radius-pill);font-size:var(--kt-size-sm);font-weight:700;transition:background-color .2s,border-color .2s,transform var(--kt-spring-duration) var(--kt-spring)}
+[data-slot=button]{border-radius:var(--kt-radius-pill);font-size:var(--kt-size-sm);font-weight:700}
 [data-slot=button]:not([data-size^=icon]){min-height:40px;padding-inline:18px}
 [data-slot=button][data-variant=default],.button.primary,.supplier-detail-wrap .button.primary{background:linear-gradient(180deg,#0b6b77,var(--kt-teal));border-color:transparent;color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 6px 16px rgba(0,84,95,.22)}
-[data-slot=button][data-variant=default]:hover:not(:disabled),.button.primary:hover:not(:disabled),.supplier-detail-wrap .button.primary:hover:not(:disabled){background:linear-gradient(180deg,var(--kt-teal),var(--kt-accent-hover))}
-[data-slot=button][data-variant=outline],[data-slot=button][data-variant=ghost],.button.secondary,.supplier-detail-wrap .button.secondary,.project-heading-actions [data-slot=button]{border:var(--kt-glass-edge);background:var(--kt-glass-fill);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);box-shadow:var(--kt-glass-highlight),0 2px 8px rgba(0,84,95,.06);color:var(--kt-text)}
+[data-slot=button][data-variant=outline],[data-slot=button][data-variant=ghost],.button.secondary,.supplier-detail-wrap .button.secondary,.project-heading-actions [data-slot=button]{border:var(--kt-glass-edge);background:var(--kt-glass-fill);box-shadow:var(--kt-glass-highlight),0 2px 8px rgba(0,84,95,.06);color:var(--kt-text)}
 [data-slot=button][data-variant=ghost]{background:linear-gradient(135deg,rgba(255,255,255,.42),rgba(255,255,255,.2));box-shadow:inset 0 1px 0 rgba(255,255,255,.8);color:var(--kt-text-2)}
-[data-slot=button][data-variant=outline]:hover:not(:disabled),[data-slot=button][data-variant=ghost]:hover:not(:disabled),.button.secondary:hover:not(:disabled),.supplier-detail-wrap .button.secondary:hover:not(:disabled),.project-heading-actions [data-slot=button]:hover:not(:disabled){background:rgba(255,255,255,.9)}
 .project-heading-actions [data-slot=button]{height:44px;padding:0 18px;font-size:var(--kt-size-sm)}
 .button,.supplier-detail-wrap .button{border-radius:var(--kt-radius-pill);font-size:var(--kt-size-sm);font-weight:700;min-height:44px;padding-inline:18px}
-:is([data-slot=button],.kt-new-chat,.kt-chips>button,.kt-composer-send,.button):active:not(:disabled){transform:scale(.97);transition-duration:.1s}
 
 /* Labels sized for the old 7px type need room at the new scale. */
 .draft-address>span{width:auto;min-width:84px;margin-right:6px}
 
-/* Calendar days stay plain inside the glass panel: hover tint only, teal when selected. */
+/* Calendar: soft rounded-square days, faint glass on hover, teal ring for today, teal fill when selected. */
 .kt-calendar{background:transparent}
-.kt-calendar [data-slot=button]{min-height:0;border-color:transparent;background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;font-size:var(--kt-size-sm);font-weight:400;color:var(--kt-text)}
-.kt-calendar [data-slot=button]:hover:not(:disabled){background:rgba(255,255,255,.75)}
+.kt-calendar .rdp-day{padding:2px}
+.kt-calendar [data-slot=button][data-day]{min-width:0} /* cells share the grid width; padding must not push past seven columns */
+.kt-calendar [data-slot=button]{min-height:0;border:0 solid transparent;border-radius:14px;background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;font-size:var(--kt-size-sm);font-weight:400;color:var(--kt-text)}
+.kt-calendar .rdp-today{background:transparent}
+.kt-calendar .rdp-today [data-slot=button]{border-width:2px;border-color:var(--kt-teal);font-weight:700}
+.kt-calendar [data-slot=button][data-selected-single=true]{font-weight:700;box-shadow:0 6px 14px rgba(0,84,95,.24);animation:kt-day-pop 260ms var(--kt-ease-bounce) both}
+@keyframes kt-day-pop{from{transform:scale(.85)}to{transform:none}}
+.kt-calendar .rdp-outside [data-slot=button]{color:var(--kt-text-3);font-weight:400}
+/* A day with something scheduled: a small lime pill with a thin teal edge. */
+.kt-calendar .scheduled-day [data-slot=button]::after{content:"";position:absolute;left:50%;bottom:4px;width:14px;height:5px;margin-left:-7px;border-radius:var(--kt-radius-pill);background:var(--kt-lime);box-shadow:0 0 0 1px var(--kt-teal);pointer-events:none}
+.kt-calendar .rdp-weekday{font-size:var(--kt-size-xs);font-weight:400;letter-spacing:.06em;text-transform:uppercase;color:var(--kt-text-2)}
+.kt-calendar .rdp-month_caption{height:44px}
+.kt-calendar .rdp-caption_label{font-size:var(--kt-size-lg);font-weight:700;letter-spacing:-.01em;color:var(--kt-text)}
+.kt-calendar .rdp-nav{height:44px}
+.kt-calendar :is(.rdp-button_previous,.rdp-button_next){width:44px;height:44px;border:var(--kt-glass-edge);border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(255,255,255,.66));box-shadow:var(--kt-glass-highlight),0 2px 8px rgba(0,84,95,.08);color:var(--kt-text)}
+/* Month change: the grid and caption fade in and slide 12px from the direction of travel. */
+.kt-calendar[data-turn^=next]{--kt-turn-x:12px}
+.kt-calendar[data-turn^=prev]{--kt-turn-x:-12px}
+.kt-calendar[data-turn$="-a"] :is(.rdp-weeks,.rdp-caption_label){animation:kt-turn-a 260ms var(--kt-ease-out) both}
+.kt-calendar[data-turn$="-b"] :is(.rdp-weeks,.rdp-caption_label){animation:kt-turn-b 260ms var(--kt-ease-out) both}
+@keyframes kt-turn-a{from{opacity:0;translate:var(--kt-turn-x) 0}}
+@keyframes kt-turn-b{from{opacity:0;translate:var(--kt-turn-x) 0}}
+/* /calendar: the panel opens up; the calendar is its own glass card and agenda items are glass rows. */
+.schedule-panel.large-schedule{border:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;isolation:auto}
+.schedule-panel.large-schedule::after{display:none}
+.large-schedule>.kt-calendar{position:relative;isolation:isolate;border:var(--kt-glass-edge);border-radius:var(--kt-radius-card);background:var(--kt-glass-fill-strong);box-shadow:var(--kt-glass-highlight),var(--kt-glass-shadow)}
+.large-schedule>.kt-calendar::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;padding:1px;pointer-events:none;background:var(--kt-glass-rim);opacity:.8;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.large-schedule>.kt-calendar .rdp-months{max-width:calc(var(--cell-size)*7);margin-inline:auto}
+.large-schedule>.kt-calendar .rdp-day{padding:3px}
+.large-schedule>.kt-calendar [data-slot=button]{font-size:clamp(15px,calc(var(--cell-size)*.32),var(--kt-size-md));font-weight:700}
+.large-schedule>.kt-calendar .rdp-outside [data-slot=button]{font-weight:400}
+.large-schedule>.kt-calendar .rdp-caption_label{font-size:var(--kt-size-xl);letter-spacing:-.02em}
+/* Day number and pill scale with the cell so they never overlap on narrow screens. */
+.large-schedule>.kt-calendar .scheduled-day [data-slot=button]::after{bottom:calc(var(--cell-size)*.1);width:18px;height:6px;margin-left:-9px}
+.large-schedule>.kt-calendar .scheduled-day [data-slot=button]{padding-bottom:calc(var(--cell-size)*.12)}
+.large-schedule>.panel-heading{padding:0}
+.large-schedule .agenda-heading{padding:0 0 12px;font-size:var(--kt-size-xs);letter-spacing:.06em;text-transform:uppercase;color:var(--kt-text-2)}
+.large-schedule .agenda-heading button{color:var(--kt-text-2);text-transform:none;letter-spacing:0}
+.large-schedule .agenda-item{position:relative;isolation:isolate;margin-bottom:10px;padding:14px 16px;border:var(--kt-glass-edge);border-radius:18px;background:var(--kt-glass-fill);box-shadow:var(--kt-glass-highlight),0 6px 18px rgba(0,84,95,.07)}
+.large-schedule .agenda-date{width:48px;height:52px;border:0;border-radius:14px;background:var(--kt-pale-lime);color:var(--kt-teal);box-shadow:inset 0 0 0 1px rgba(0,84,95,.12)}
+.large-schedule .agenda-date strong{font-size:var(--kt-size-md)}
+.large-schedule .agenda-item>span:nth-child(2)>strong{font-size:var(--kt-size-md);color:var(--kt-text)}
+.large-schedule .agenda-item>span:nth-child(2)>small{font-size:var(--kt-size-sm);color:var(--kt-text-3)}
+.large-schedule .agenda-item>svg{color:var(--kt-text-2)}
+.large-schedule>.schedule-note,.large-schedule>.panel-heading .section-caption{color:var(--kt-text-2)}
+.large-schedule>.panel-heading h2{text-shadow:0 1px 0 rgba(255,255,255,.6)}
+
+/* Motion: playful hover and press. Only transform (translate, scale, rotate) and opacity animate.
+   Hover moves need a real pointer and no reduced-motion preference; glass (backdrop-filter) never scales past 1.02. */
+:is([data-slot=button]:not([data-day]),.button,.kt-new-chat,.kt-composer-send,.kt-calendar .rdp-button_previous,.kt-calendar .rdp-button_next,
+.kt-chips>button,.queue-filters>button,.connections-jump>a,.project-citations button,.kt-project-pill,.filter-toggle){transition:translate var(--kt-dur-hover) var(--kt-ease-bounce),scale var(--kt-dur-hover) var(--kt-ease-bounce)}
+:is(.kt-composer-icon,.kt-project-clear,.project-tabs>a,.case-tabs>a,.activity-item,.agenda-heading button){transition:none}
+.kt-calendar [data-slot=button][data-day]{transition:scale 200ms var(--kt-ease-bounce)}
+svg:is(.lucide,[data-icon]){transition:translate var(--kt-dur-hover) var(--kt-ease-bounce),rotate var(--kt-dur-hover) var(--kt-ease-bounce)}
+@keyframes kt-hop{40%{translate:0 -2px}}
+
+/* Primary buttons: a brighter inner highlight fades in (a layer under the label, never a box-shadow change). */
+:is([data-slot=button][data-variant=default],.button.primary,.kt-composer-send){isolation:isolate}
+:is([data-slot=button][data-variant=default],.button.primary,.kt-composer-send)::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,0) 55%);opacity:0;pointer-events:none;transition:opacity var(--kt-dur-hover) var(--kt-ease-out)}
+
+/* Cards: lift, the rim brightens (opacity), and a one-shot sheen sweeps across. overflow:hidden keeps the sheen inside the radius. */
+:is(.kt-card,.queue-card,.vendor-record,.connection-card,.project-file-row,.task-tile,.large-schedule .agenda-item){overflow:hidden;transition:translate var(--kt-dur-hover) var(--kt-ease-bounce)}
+.large-schedule .agenda-item::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;padding:1px;pointer-events:none;background:var(--kt-glass-rim);opacity:.8;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+:is(.kt-card,.queue-card,.vendor-record,.connection-card,.project-file-row,.task-tile,.large-schedule .agenda-item)::after{transition:opacity var(--kt-dur-hover) var(--kt-ease-out)}
+:is(.kt-card,.queue-card,.vendor-record,.connection-card,.project-file-row,.task-tile,.large-schedule .agenda-item)::before{content:"";position:absolute;inset:0;z-index:2;border-radius:inherit;pointer-events:none;background:linear-gradient(105deg,transparent 36%,rgba(255,255,255,.5) 50%,transparent 64%);translate:-120% 0;transition:none}
+
+/* Sidebar items: the label slides 3px right; a faint teal pill (::after) scales in behind it and stays put. */
+:is(.kt-nav-link,.sidebar-project-link,.sidebar-new-project,.sidebar-task-list>a,.kt-sidebar-profile){isolation:isolate;transition:translate var(--kt-dur-hover) var(--kt-ease-bounce)}
+:is(.kt-nav-link,.sidebar-project-link,.sidebar-new-project,.sidebar-task-list>a,.kt-sidebar-profile)::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:rgba(0,84,95,.08);opacity:0;scale:.9;pointer-events:none;transition:opacity 180ms var(--kt-ease-out),scale var(--kt-dur-hover) var(--kt-ease-bounce),translate var(--kt-dur-hover) var(--kt-ease-bounce)}
+
+/* Hover colour changes: instant, real pointers only (no sticky hover on touch). */
+@media (hover:hover) and (pointer:fine){
+  .kt-new-chat:hover{background:var(--kt-highlight-hover)}
+  :is([data-slot=button][data-variant=default],.button.primary,.kt-composer-send):hover:not(:disabled)::after{opacity:1}
+  :is([data-slot=button][data-variant=outline],[data-slot=button][data-variant=ghost]:not([data-day]),.button.secondary,.project-heading-actions [data-slot=button]):hover:not(:disabled){background:rgba(255,255,255,.9)}
+  :is(.kt-chips>button,.connections-jump>a,.queue-filters>button:not(.active),.project-citations button,.kt-project-control:not(.selected) .kt-project-pill):hover:not(:disabled):not([aria-disabled=true]){background:rgba(255,255,255,.88);border-color:rgba(0,84,95,.16)}
+  .kt-project-control.selected .kt-project-pill:hover:not([aria-disabled=true]){background:rgba(0,84,95,.06)}
+  :is(.kt-composer-icon:not(:disabled),.kt-project-clear):hover{background:rgba(0,84,95,.08)}
+  .kt-calendar [data-slot=button][data-day]:hover:not(:disabled):not([data-selected-single=true]){background:rgba(255,255,255,.72);box-shadow:inset 0 0 0 1px rgba(255,255,255,.95),0 2px 8px rgba(0,84,95,.08)}
+  :is(.project-tabs,.supplier-detail-wrap .case-tabs)>a:not(.active):hover{background:rgba(255,255,255,.7)}
+  .activity-item:hover{background:rgba(255,255,255,.45)}
+  :is(.kt-card,.queue-card,.vendor-record,.connection-card,.project-file-row,.task-tile,.large-schedule .agenda-item):hover::after{opacity:1}
+  :is(.kt-nav-link:not(.active),.sidebar-project-link:not(.selected),.sidebar-new-project:not(:disabled),.sidebar-task-list>a:not(.active),.kt-sidebar-profile):hover::after{opacity:1;scale:1}
+}
+
+/* Hover movement. */
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+  :is([data-slot=button][data-variant=default],.button.primary,.kt-new-chat,.kt-composer-send):hover:not(:disabled){translate:0 -2px;scale:1.03}
+  :is([data-slot=button][data-variant=outline],[data-slot=button][data-variant=ghost]:not([data-day]),.button.secondary,.button.ghost,.kt-calendar .rdp-button_previous,.kt-calendar .rdp-button_next):hover:not(:disabled):not([aria-disabled=true]){translate:0 -2px;scale:1.02}
+  :is(.kt-chips>button,.queue-filters>button,.connections-jump>a,.project-citations button,.kt-project-control:not(.selected) .kt-project-pill,.filter-toggle):hover:not(:disabled):not([aria-disabled=true]){translate:0 -1px;scale:1.02}
+  .kt-calendar [data-slot=button][data-day]:hover:not(:disabled){scale:1.08}
+  :is(.kt-card,.queue-card,.vendor-record,.connection-card,.project-file-row,.task-tile,.large-schedule .agenda-item):hover{translate:0 -3px}
+  :is(.kt-card,.queue-card,.vendor-record,.connection-card,.project-file-row,.task-tile,.large-schedule .agenda-item):hover::before{translate:120% 0;transition:translate 600ms var(--kt-ease-out)}
+  :is(.kt-nav-link,.sidebar-project-link,.sidebar-new-project:not(:disabled),.sidebar-task-list>a,.kt-sidebar-profile):hover{translate:3px 0}
+  :is(.kt-nav-link,.sidebar-project-link,.sidebar-new-project,.sidebar-task-list>a,.kt-sidebar-profile):hover::after{translate:-3px 0}
+  /* Icons: a small move that matches what the icon means. */
+  :is(a,button):not(.back-link):hover:not(:disabled):not([aria-disabled=true]) :is(svg.lucide-arrow-right,svg.lucide-chevron-right,svg[data-icon=arrow]){translate:3px 0}
+  :is(a,button):hover:not(:disabled) :is(svg.lucide-arrow-left,svg.lucide-chevron-left),.back-link:hover svg[data-icon=arrow]{translate:-3px 0}
+  button:hover:not(:disabled) svg.lucide-arrow-up{translate:2px -2px}
+  button:hover:not(:disabled) svg.lucide-paperclip{rotate:-12deg}
+  :is(a,button):hover:not(:disabled) svg.lucide-plus{rotate:90deg}
+  :is(a,button):hover:not(:disabled):not([aria-disabled=true]) :is(svg.lucide-folder,svg.lucide-folder-plus,svg.lucide-calendar-days),
+  :is(.kt-nav-link,.sidebar-task-list>a):hover>svg:first-child{animation:kt-hop 360ms var(--kt-ease-bounce)}
+}
+
+/* Keyboard focus gets the same lift as hover, alongside the focus ring. */
+@media (prefers-reduced-motion:no-preference){
+  :is([data-slot=button][data-variant=default],.button.primary,.kt-new-chat,.kt-composer-send):focus-visible{translate:0 -2px}
+  :is(.vendor-record,.project-file-row,.task-tile,.large-schedule .agenda-item):focus-visible{translate:0 -3px}
+  /* Press: a quick squeeze, then the hover transition springs it back. */
+  :is([data-slot=button]:not([data-day]),.button,.kt-new-chat,.kt-composer-send,.kt-calendar .rdp-button_previous,.kt-calendar .rdp-button_next):active:not(:disabled){scale:.96;transition-duration:var(--kt-dur-press)}
+  :is(.kt-chips>button,.queue-filters>button,.connections-jump>a,.project-citations button,.kt-project-control:not(.selected) .kt-project-pill,.filter-toggle):active:not(:disabled):not([aria-disabled=true]){scale:.95;transition-duration:var(--kt-dur-press)}
+  .kt-calendar [data-slot=button][data-day]:active:not(:disabled){scale:.96;transition-duration:var(--kt-dur-press)}
+}
+
+/* Entrances: light, once on mount, never on re-render. The pop uses `transform` so it never fights the
+   translate/scale hover properties. Siblings in lists stagger 40ms apart, capped at the 8th step. */
+@keyframes kt-pop-in{from{opacity:0;transform:translateY(10px) scale(.98)}}
+@keyframes kt-route-in{from{transform:translateY(8px)}}
+@keyframes kt-fade-up{from{opacity:0;transform:translateY(6px)}}
+:is(.approval-queue,.vendor-library-grid,.task-grid,.project-file-list,.activity-list,.request-list,.schedule-agenda,.connection-list,.kt-chips,.queue-filters,.connections-jump,.decision-cards,.context-files,.project-heading-actions)>:nth-child(2){--i:1}
+:is(.approval-queue,.vendor-library-grid,.task-grid,.project-file-list,.activity-list,.request-list,.schedule-agenda,.connection-list,.kt-chips,.queue-filters,.connections-jump,.decision-cards,.context-files,.project-heading-actions)>:nth-child(3){--i:2}
+:is(.approval-queue,.vendor-library-grid,.task-grid,.project-file-list,.activity-list,.request-list,.schedule-agenda,.connection-list,.kt-chips,.queue-filters,.connections-jump,.decision-cards,.context-files,.project-heading-actions)>:nth-child(4){--i:3}
+:is(.approval-queue,.vendor-library-grid,.task-grid,.project-file-list,.activity-list,.request-list,.schedule-agenda,.connection-list,.kt-chips,.queue-filters,.connections-jump,.decision-cards,.context-files,.project-heading-actions)>:nth-child(5){--i:4}
+:is(.approval-queue,.vendor-library-grid,.task-grid,.project-file-list,.activity-list,.request-list,.schedule-agenda,.connection-list,.kt-chips,.queue-filters,.connections-jump,.decision-cards,.context-files,.project-heading-actions)>:nth-child(6){--i:5}
+:is(.approval-queue,.vendor-library-grid,.task-grid,.project-file-list,.activity-list,.request-list,.schedule-agenda,.connection-list,.kt-chips,.queue-filters,.connections-jump,.decision-cards,.context-files,.project-heading-actions)>:nth-child(7){--i:6}
+:is(.approval-queue,.vendor-library-grid,.task-grid,.project-file-list,.activity-list,.request-list,.schedule-agenda,.connection-list,.kt-chips,.queue-filters,.connections-jump,.decision-cards,.context-files,.project-heading-actions)>:nth-child(8){--i:7}
+:is(.approval-queue,.vendor-library-grid,.task-grid,.project-file-list,.activity-list,.request-list,.schedule-agenda,.connection-list,.kt-chips,.queue-filters,.connections-jump,.decision-cards,.context-files,.project-heading-actions)>:nth-child(n+9){--i:8}
+/* Glass surfaces fade on themselves; an animated opacity on an ancestor would cut their blur off from the aurora. */
+:is(.queue-card,.vendor-record,.connection-card,.task-tile,.project-file-row,.activity-list,.request-list,.project-context-panel,.file-dropzone,.schedule-panel:not(.large-schedule),.large-schedule>.kt-calendar,.large-schedule .agenda-item,.kt-composer,.kt-chips>button,.queue-filters>button,.connections-jump>a,.project-tabs,.project-heading-actions>*,.approval-count,.context-files>button,
+.supplier-detail-wrap :is(.paper,.decision-card,.table-scroll,.thread-list,.story-strip,.activity-paper,.next-step,.draft-card,.case-tabs,.selected-notice,.human-note,.outcome-report)){animation:kt-pop-in var(--kt-dur-enter) var(--kt-ease-spring) calc(min(var(--i,0),8)*40ms) both}
+:is(.activity-item,.request-row){animation:kt-fade-up 300ms var(--kt-ease-out) calc(min(var(--i,0),8)*40ms) both}
+/* Main content: the page rises 8px (transform only) while its headings fade and its glass pops in. */
+#workspace-content>*{animation:kt-route-in 320ms var(--kt-ease-out) both}
+:is(.workspace-heading,.project-page-heading>div:first-child,.panel-heading,.view-heading,.case-breadcrumb,.case-heading>div:first-child,.section-head,.decision-intro,.connections-section>h2,.queue-footnote,.schedule-note,.panel-empty,.kt-chat-empty>h1,.kt-chat-note,.agenda-heading){animation:kt-fade-up 320ms var(--kt-ease-out) both}
+/* A tab switch inside the same project: heading and tab bar stay still, only the content moves in. */
+#workspace-content[data-enter=tab]>*,#workspace-content[data-enter=tab] :is(.project-page-heading>div:first-child,.project-heading-actions>*,.project-tabs){animation:none}
+#workspace-content[data-enter=tab] .project-workspace>:not(.project-page-heading,.project-tabs){animation:kt-route-in 320ms var(--kt-ease-out) both}
+/* The empty chat headline's highlight pill pops once. */
+.kt-highlight-pill{animation:kt-pill-pop 520ms var(--kt-ease-bounce) 180ms both}
+@keyframes kt-pill-pop{from{opacity:0;transform:scale(.82)}}
+/* Dialogs and menus scale up from .96 with a light bounce; toasts slide up 12px; changed counters bump. */
+.kt-dialog[data-state=open],dialog.dialog[open]{animation:kt-dialog-in 220ms var(--kt-ease-bounce) both}
+dialog.dialog.sheet[open]{transform-origin:right center}
+[data-slot=dialog-overlay][data-state=open]{animation:kt-fade 200ms var(--kt-ease-out) both}
+@keyframes kt-dialog-in{from{opacity:0;scale:.96}}
+.toast{animation:kt-toast-in 320ms var(--kt-ease-bounce) both}
+@keyframes kt-toast-in{from{opacity:0;translate:0 12px}}
+[data-bump]{animation:kt-bump 260ms var(--kt-ease-bounce)}
+@keyframes kt-bump{50%{transform:scale(1.15)}}
 
 /* Toasts: strong glass. */
 .toast{background:var(--kt-glass-fill-strong);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);color:var(--kt-text);border:var(--kt-glass-edge);border-radius:var(--kt-radius-menu);box-shadow:var(--kt-glass-highlight),var(--kt-glass-shadow);font-size:var(--kt-size-sm);padding:14px 18px}
@@ -361,19 +546,51 @@ dialog.dialog::backdrop{background:var(--kt-scrim)}
   .kt-sidebar{background:var(--kt-sidebar-solid)}
   .kt-glass,.kt-glass-strong,.kt-topbar,.kt-dialog,dialog.dialog,.kt-project-pill{background:var(--kt-glass-solid)}
   .kt-card,.queue-card,.vendor-record,.connection-card,.activity-list,.request-list,.schedule-panel,.project-context-panel,.project-file-row,.task-tile,.supplier-detail-wrap :is(.paper,.decision-card,.table-scroll,.thread-list,.message,.story-strip,.activity-paper,.outcome-report,.next-step,.draft-card),.kt-chips>button,.connections-jump>a,.queue-filters>button,.project-tabs,.supplier-detail-wrap .case-tabs,.project-citations button,[data-slot=button][data-variant=outline],[data-slot=button][data-variant=ghost],.button.secondary,.supplier-detail-wrap .button.secondary,.project-heading-actions [data-slot=button],.toast{background:var(--kt-glass-solid)}
+  .large-schedule>.kt-calendar,.large-schedule .agenda-item{background:var(--kt-glass-solid)}
 }
 @media (prefers-reduced-transparency:reduce){
   .kt-composer,.kt-profile-menu{background:var(--kt-material-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
   .kt-sidebar{background:var(--kt-sidebar-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
   .kt-glass,.kt-glass-strong,.kt-topbar,.kt-dialog,dialog.dialog,.kt-project-pill{background:var(--kt-glass-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
   .kt-card,.queue-card,.vendor-record,.connection-card,.activity-list,.request-list,.schedule-panel,.project-context-panel,.project-file-row,.task-tile,.supplier-detail-wrap :is(.paper,.decision-card,.table-scroll,.thread-list,.message,.story-strip,.activity-paper,.outcome-report,.next-step,.draft-card),.kt-chips>button,.connections-jump>a,.queue-filters>button,.project-tabs,.supplier-detail-wrap .case-tabs,.project-citations button,[data-slot=button][data-variant=outline],[data-slot=button][data-variant=ghost],.button.secondary,.supplier-detail-wrap .button.secondary,.project-heading-actions [data-slot=button],.toast{background:var(--kt-glass-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
+  .large-schedule>.kt-calendar,.large-schedule .agenda-item{background:var(--kt-glass-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
 }
+/* Lite mode (aurora.tsx sets data-perf="lite" on devices without a GPU): no live blur anywhere and a still
+   aurora. Every hover, press and entrance animation stays, since those only move transform and opacity. */
+:root[data-perf=lite] :is(.kt-composer,.kt-profile-menu){background:var(--kt-material-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-perf=lite] .kt-sidebar{background:var(--kt-sidebar-solid)}
+:root[data-perf=lite] :is(.kt-glass,.kt-glass-strong,.kt-topbar,.kt-dialog,dialog.dialog,.toast){background:var(--kt-glass-solid);-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-perf=lite] [data-slot=dialog-overlay],:root[data-perf=lite] .dialog::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-perf=lite] .kt-aurora>span{animation:none;will-change:auto}
+/* The route-change breath scales the whole screen-sized aurora, which a software compositor redraws in full every
+   frame (~35 dropped frames per click). Lite skips it; the blobs still glide to each view's layout. */
+:root[data-perf=lite] .kt-aurora[data-breath]{animation:none}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important}
-  .kt-msg,.kt-profile-menu{animation:kt-fade .15s ease both}
-  .kt-aurora>span{animation:none}
-  .kt-subnav,.kt-nav-chevron,.kt-sidebar,[data-slot=button],.kt-new-chat,.kt-chips>button,.kt-composer-send{transition-property:opacity,background-color,border-color,color;transition-duration:.15s;transition-timing-function:ease}
-  :is([data-slot=button],.kt-new-chat,.kt-chips>button,.kt-composer-send,button):active:not(:disabled){transform:none}
+  .kt-calendar [data-slot=button][data-selected-single=true]{animation:none}
+  .kt-calendar[data-turn]{--kt-turn-x:0px} /* month change becomes a plain fade */
+  /* Entrances become plain opacity fades; bounces, bumps, hops and the background breath do nothing. */
+  @keyframes kt-pop-in{from{opacity:0}}
+  @keyframes kt-fade-up{from{opacity:0}}
+  @keyframes kt-rise{from{opacity:0}}
+  @keyframes kt-msg-user{from{opacity:0}}
+  @keyframes kt-pill-pop{from{opacity:0}}
+  @keyframes kt-dialog-in{from{opacity:0}}
+  @keyframes kt-toast-in{from{opacity:0}}
+  @keyframes kt-materialize{from{opacity:0}}
+  /* Explicit no-op frames: empty @keyframes would be dropped by the minifier and the moving versions would win. */
+  @keyframes kt-route-in{from{transform:none}}
+  @keyframes kt-bump{from{transform:none}}
+  @keyframes kt-hop{from{translate:none}}
+  @keyframes kt-breath-a{from{scale:none}}
+  @keyframes kt-breath-b{from{scale:none}}
+  /* The background still changes per view, instantly. */
+  .kt-aurora>span{animation:none;transition:none}
+  .kt-subnav,.kt-nav-chevron,.kt-sidebar{transition-property:opacity,background-color,border-color,color;transition-duration:.15s;transition-timing-function:ease}
+  /* No lifts, pops, slides or sheen: hover and selection fall back to colour and opacity only. */
+  :is(.kt-nav-link,.sidebar-project-link,.sidebar-new-project,.sidebar-task-list>a,.kt-sidebar-profile)::after{scale:none;transition:opacity 180ms ease}
+  :is(.kt-card,.queue-card,.vendor-record,.connection-card,.project-file-row,.task-tile,.large-schedule .agenda-item)::before{display:none}
+  :is(.project-tabs,.supplier-detail-wrap .case-tabs)>a.active[data-slide]::after{animation:none}
 }
 @keyframes kt-fade{from{opacity:0}to{opacity:1}}
 

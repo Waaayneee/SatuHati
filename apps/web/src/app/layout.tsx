@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { DemoProvider } from "@/components/kawteam";
+import { Aurora } from "@/components/aurora";
 
 // TeX Gyre Heros, a free Helvetica clone (GUST Font License, see ./fonts/GUST-FONT-LICENSE.txt).
 const heros = localFont({
@@ -28,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={heros.variable}>
       <body>
-        <div className="kt-aurora" aria-hidden="true"><span/><span/><span/><span/><span/></div>
+        <Aurora />
         <DemoProvider>{children}</DemoProvider>
       </body>
     </html>

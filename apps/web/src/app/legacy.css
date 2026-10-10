@@ -7,7 +7,6 @@ button:disabled{cursor:not-allowed;opacity:.45}
 a{text-decoration:none;color:inherit}
 button{color:inherit}
 a,button{transition:background .2s cubic-bezier(.2,.7,.2,1),transform .2s cubic-bezier(.2,.7,.2,1),color .2s}
-button:active:not(:disabled){transform:translateY(1px)}
 :focus-visible{outline:3px solid var(--kt-line-strong);outline-offset:4px}
 ::selection{background:var(--kt-fill-strong);color:var(--kt-text)}
 h1,h2,h3,p{margin:0}

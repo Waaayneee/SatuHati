@@ -20,5 +20,5 @@ const paths: Record<IconName, React.ReactNode> = {
   edit: <path d="m4 16 12-12 4 4L8 20H4zM13 7l4 4"/>,
 };
 export function Icon({ name, size = 20, style }: { name: IconName; size?: number; style?: CSSProperties }) {
-  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={style}>{paths[name]}</svg>;
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" data-icon={name} style={style}>{paths[name]}</svg>;
 }
