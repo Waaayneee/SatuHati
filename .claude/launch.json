@@ -1,0 +1,20 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "kawteam-api",
+      "runtimeExecutable": "C:\\Users\\bubbl\\OneDrive\\Desktop\\AiDormathon 26\\apps\\api\\.venv\\Scripts\\python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "kawteam.main:app", "--app-dir", "src", "--port", "8000"],
+      "cwd": "apps/api",
+      "port": 8000,
+      "url": "http://localhost:8000"
+    },
+    {
+      "name": "kawteam-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "apps/web",
+      "port": 3000
+    }
+  ]
+}
