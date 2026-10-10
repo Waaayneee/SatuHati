@@ -11,7 +11,7 @@
 .project-chat-layout>.project-context-panel{align-self:start;margin-top:16px;max-height:calc(100% - 32px);overflow:auto}
 .kt-chat{display:flex;flex-direction:column;min-height:0;min-width:0;height:100%}
 .kt-chat-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#dae4e1 transparent}
-.kt-thread{max-width:760px;margin:0 auto;padding:28px 20px 12px;display:flex;flex-direction:column;gap:22px}
+.kt-thread{max-width:920px;margin:0 auto;padding:28px 20px 12px;display:flex;flex-direction:column;gap:22px}
 .kt-msg{display:flex;flex-direction:column;gap:6px;min-width:0}
 .kt-msg.user{align-items:flex-end}
 .kt-msg.user>.kt-msg-body{max-width:min(80%,560px);background:var(--kt-fill);border-radius:18px;padding:10px 16px}
@@ -19,7 +19,7 @@
 .kt-msg-body>p{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px;line-height:1.65;color:var(--ink)}
 .kt-msg-label{font-size:11px;font-weight:500;color:var(--muted)}
 .kt-msg .chat-thinking{align-self:flex-start}
-.kt-composer-dock{width:100%;max-width:800px;margin:0 auto;padding:8px 20px 18px}
+.kt-composer-dock{width:100%;max-width:960px;margin:0 auto;padding:8px 20px 18px}
 .kt-chat-note{margin-top:8px;text-align:center;font-size:11px;color:var(--muted)}
 .kt-composer{display:flex;align-items:flex-end;gap:6px;background:var(--kt-surface);border:1px solid var(--kt-line);border-radius:26px;padding:7px;box-shadow:0 4px 18px #00323f0f}
 .kt-composer:focus-within{border-color:var(--kt-line-strong)}
@@ -31,7 +31,7 @@
 .kt-composer-send{background:var(--green);color:var(--kt-on-accent)}
 .kt-composer-send:disabled{background:var(--kt-fill-strong);color:var(--kt-text-3)}
 .kt-composer button:disabled{cursor:default}
-.kt-chat-empty{flex:1;width:100%;max-width:800px;margin:0 auto;padding:24px 20px 10vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
+.kt-chat-empty{flex:1;width:100%;max-width:960px;margin:0 auto;padding:24px 20px 10vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px}
 .kt-chat-empty>h1{font-size:30px;font-weight:600;text-align:center;color:var(--ink)}
 .kt-chat-empty>.kt-composer{width:100%}
 .kt-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}

@@ -6,7 +6,9 @@ KawTeam is a chat-first workspace for events and supplier work. The home page is
 
 ## Run locally
 
-Open this folder in VS Code. Use **two terminals**, starting from the project folder.
+**Quickest:** double-click `start.cmd` in the project folder. It starts both servers in their own windows, sets up the Python venv and web dependencies on first run, and opens **http://localhost:3000** once the app responds. Close the two server windows to stop it.
+
+Or start them manually with **two terminals**, starting from the project folder.
 
 Terminal 1:
 

@@ -112,7 +112,7 @@ export function NewChat(){
       <div className="kt-chat-scroll" ref={scrollPane} aria-live="polite"><div className="kt-thread">{messages.map(m=><MessageRow key={m.id} role={m.role}>{m.body&&<p>{m.body}</p>}{m.role==='assistant'&&renderCard(m)}</MessageRow>)}{working&&<Thinking label={working}/>}</div></div>
       <div className="kt-composer-dock">{composer}</div>
     </>:<div className="kt-chat-empty">
-      <h1>What are we working on?</h1>
+      <h1>What are we going to KawTeam today?</h1>
       {composer}
       <div className="kt-chips"><button onClick={()=>handle('Start a new project')} disabled={loading}><FolderPlus size={15}/>Start a new project</button><button onClick={()=>handle('Find shirt printing vendors for 50 shirts within RM2,000')} disabled={loading}><Search size={15}/>Find shirt printing vendors for 50 shirts within RM2,000</button><button onClick={()=>handle('Show what needs my approval')} disabled={loading}><ShieldCheck size={15}/>Show what needs my approval</button><button onClick={()=>fileInput.current?.click()} disabled={loading}><Paperclip size={15}/>Upload a project file</button></div>
     </div>}
