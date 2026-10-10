@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
+from app.api import agent_tools, approvals, audit, me, missions, users
 from app.config import settings
 from app.db import check_connection, get_engine
 from app.services.errors import Conflict, DomainError, InvalidInput, NotFound, PermissionDenied, Refused
@@ -39,3 +40,11 @@ def health() -> dict:
     except Exception:
         db_ok = False
     return {"status": "ok" if db_ok else "degraded", "database": "ok" if db_ok else "unreachable"}
+
+
+app.include_router(me.router)
+app.include_router(missions.router)
+app.include_router(approvals.router)
+app.include_router(audit.router)
+app.include_router(users.router)
+app.include_router(agent_tools.router)

@@ -152,7 +152,7 @@ def _get_policy(db: Session, action_type: str) -> ApprovalPolicy | None:
     return db.scalars(select(ApprovalPolicy).where(ApprovalPolicy.action_type == action_type)).one_or_none()
 
 
-def _user_id_from_ref(ref: str | None) -> uuid.UUID | None:
+def user_id_from_ref(ref: str | None) -> uuid.UUID | None:
     if ref and ref.startswith("user:"):
         try:
             return uuid.UUID(ref.removeprefix("user:"))
@@ -162,7 +162,7 @@ def _user_id_from_ref(ref: str | None) -> uuid.UUID | None:
 
 
 def requester_user_ids(approval: Approval) -> set[uuid.UUID]:
-    ids = {approval.requested_on_behalf_of, _user_id_from_ref(approval.requested_by)}
+    ids = {approval.requested_on_behalf_of, user_id_from_ref(approval.requested_by)}
     return {i for i in ids if i is not None}
 
 
@@ -409,6 +409,17 @@ def approver_role_for(actor: Actor, approval: Approval) -> str:
 def decide(db: Session, actor: Actor, approval_id: uuid.UUID, decision: str, reason: str) -> Approval:
     """Approve or reject exactly one approval. On approval the backend issues a
     single-use token and immediately executes the stored snapshot. Commits."""
+    if not actor.is_user:
+        audit_service.record(
+            db,
+            actor,
+            "approval.decision_refused",
+            input_ref={"approval_id": approval_id, "decision": decision},
+            status="refused",
+            error="Agents can never approve anything",
+        )
+        db.commit()
+        raise PermissionDenied("Agents can never approve anything")
     if decision not in (ApprovalStatus.APPROVED.value, ApprovalStatus.REJECTED.value):
         raise InvalidInput("decision must be 'approved' or 'rejected'")
     reason = (reason or "").strip()

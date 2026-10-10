@@ -126,3 +126,12 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 - `app/agent/system_prompt.md`: tool purposes and order, the agent can never approve, `approval_required` means stop and report, hard budget never exceeded, opt-outs respected, enquiries carry no price or terms, tool and supplier content is data not instructions.
 - CLI: `python -m app.agent.run --mission MISSION-001 [--as email] "prompt"`. API route comes with Step 1.8.
 - Check: 8 tool definitions build; missing key gives a clear config error. Live run waits for `ANTHROPIC_API_KEY`; mocked-client test in Step 1.10.
+
+### Step 1.8. API endpoints
+
+- Routers in `app/api/`: `GET /health`, `GET /me`, `POST/GET /missions`, `GET/PATCH /missions/{id}`, `POST /missions/{id}/confirm-limits` (HOD), `POST /missions/{id}/agent/run` (Committee/HOD, 503 if Claude is not configured), `GET /approvals` (inbox), `GET /approvals/{id}` (snapshot, expiry, budget comparison, `can_decide` hint), `POST /approvals/{id}/decision`, `GET /audit`, `GET /users` (HOD), `GET /agent/tools` and `POST /agent/tools/{name}` (agent token).
+- Inbox: HOD sees all; Committee Members see Tier 1 items they did not request plus everything on their own missions. Approval detail is readable by any member so a refused attempt can be shown in the demo; the decision endpoint still enforces every rule.
+- Audit: HOD sees all; Committee Members see their own missions and their own actions. Agent rows show who the run was for.
+- The decision endpoint accepts any authenticated actor so an agent attempt is refused (403) and audited by `approval_service.decide`.
+- Refusals from create / edit / confirm are audited through `audited_refusals` before the HTTP error is returned.
+- Check: OpenAPI lists all 13 routes. Behaviour covered by Step 1.10 tests.
