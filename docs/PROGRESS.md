@@ -49,7 +49,7 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 ### Step 0.7. Smoke checks
 
 - `python -m scripts.check_db` runs `SELECT 1` on both URLs. `python -m scripts.check_claude` prints only the model and first reply line.
-- `GET /health` now returns `{"status": "ok", "database": "ok"}` or `"degraded"` / `"unreachable"`. Connections time out after 10 s per address instead of hanging.
+- `GET /health` now returns `{"status": "ok", "database": "ok"}` or `"degraded"` / `"unreachable"`. Connections time out after 5 s per address instead of hanging (was 10 s, lowered on 2026-10-10).
 - Result on 2026-10-10: **both DB checks fail** because this network blocks outbound TCP 5432 and 6543 (`portquiz.net:5432` times out, `portquiz.net:443` works, also outside the sandbox). Claude check: key not set.
 
 ### Step 0.8. Access status
@@ -207,3 +207,20 @@ Then, with `ANTHROPIC_API_KEY` in `backend/.env`: `python -m scripts.check_claud
 - Phase 3 replaces `demo_tools.search_suppliers` with real search (Brave or Tavily) that writes `evidence_sources` with `is_simulated = false`, and adds `verify_supplier`, `compare_offers`, `rank_candidates` to the same registry. `prepare_counteroffer` moves to a negotiation engine.
 - Phase 4 swaps the body of `perform_send_message` (`backend/app/tools/workflow_tools.py`) for real email. The approval, token and audit path stays exactly as is.
 - Phase 7 (WorkBuddy MCP) points at `GET /agent/tools` and `POST /agent/tools/{name}`, which are already built and tested.
+
+## UI update (2026-10-10): profile switching, palette, light by default
+
+Wayne asked for no login page, a profile switcher, light mode by default, and the teal and lime palette.
+
+- **No sign-in.** `/login` and the Supabase browser client are gone (`@supabase/ssr` and `@supabase/supabase-js` uninstalled). The avatar at the top right opens a menu that lists every seeded person (HOD first) and switches between them with no password. Each tab keeps its own person in memory; localStorage only remembers the last choice. A switch remounts the app so every page reloads its data as the new person.
+- **Backend.** New setting `DEMO_PROFILE_SWITCH` (default `false`, set to `true` in Wayne's local `backend/.env`). When on, `GET /profiles` (no auth) lists active people with a role, and an `X-Profile-Id` header acts as that person through the same user and role checks as a token (`_registered_user` in `app/auth/dependencies.py`). Bearer tokens and the agent token still work and take priority. When off, `/profiles` is 404 and the header is 401. CORS allows the header.
+- **Trade-off.** With switching on, anyone who can reach the backend can act as any person, including approving as someone else. Approval rules still apply to the person chosen, but they no longer prove who is at the keyboard. Keep it off for anything other people can reach.
+- **Look.** Palette from Wayne's brief: deep teal `#00545f`, lime `#d6fb00`, pale lime `#ecffb6`. Light is the default whatever the system setting. Dark is a choice in the profile menu, applied before first paint by an inline script (`lib/theme.ts`). Primary buttons and the active nav item are teal with pale-lime text (lime with teal text in dark mode). HOD avatars are teal and Committee avatars are lime.
+- **Next.js.** `experimental.instantInsights.validationLevel = "manual-warning"`. Pages wait for the chosen profile in the browser, so the default check flagged every page as a dev-only "Insight".
+- **Checks.** `npm run lint`, `tsc --noEmit` and `npm run build` pass. The 9 database-free tests pass. New `tests/test_profiles.py` (6 tests) still needs port 5432; its logic was checked with a stubbed database session. Browser check against a temporary mock API (deleted) at desktop and 375 px, light and dark: switching HOD to Committee, a reload keeping the profile and theme, outside click and Escape closing the menu, the "server unreachable" screen and its Try again.
+
+### One-window start and database errors (2026-10-10)
+
+- `npm run dev` in the project folder (root `package.json`, no packages) or double-clicking `start.cmd` runs `scripts/dev.mjs`. It starts the backend (uvicorn `--reload`, port 8000) and the frontend (Next.js, port 3000) in one window with `[api]` and `[web]` labels, then says whether the database is reachable. Ctrl+C, or either server exiting, stops both (`taskkill /T` on Windows, so no worker is left on the port). It refuses to start while 3000 or 8000 is in use.
+- A database that can't be reached is now a 503 "Can't reach the database" with CORS headers (handler for `sqlalchemy.exc.OperationalError` in `app/main.py`). Before, the 500 had no CORS headers, so the browser showed only "Failed to fetch". The app shows that message with a hotspot hint and Try again. A "Connecting…" line appears if loading takes over 3 s.
+- Checked: the launcher refuses busy ports. A copy on spare ports started both servers and reported the unreachable database. Both crash and abrupt-kill paths left no process behind. The full start on 3000 was not run while Wayne's own frontend still held the port.

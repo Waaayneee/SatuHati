@@ -11,7 +11,7 @@ Shows the approval gate end to end: a Committee Member creates a mission, the HO
   <tr><td>HOD</td><td>waynehopr@sunwaytechclub.com</td><td>HOD</td></tr>
 </table>
 
-Use three browser profiles (or one normal and two private windows) so all three can stay signed in.
+No passwords: with `DEMO_PROFILE_SWITCH=true` in `backend/.env`, tap the avatar at the top right and pick who you act as. Each browser tab keeps its own person, so you can also open one tab per person.
 
 ## Before you start (once)
 
@@ -34,22 +34,18 @@ alembic upgrade head
 python -m scripts.seed
 ```
 
-Start the two servers in two terminals:
+Start both servers from the project folder in one window (or double-click `start.cmd`):
 
 ```powershell
-cd backend; .\.venv\Scripts\Activate.ps1; uvicorn app.main:app --reload --port 8000
+npm run dev
 ```
 
-```powershell
-cd frontend; npm run dev
-```
-
-Open http://localhost:3000.
+Open http://localhost:3000. Ctrl+C stops both. The window says whether the database is reachable.
 
 ## Script
 
-1. **Member A creates the mission.** Sign in as A. Missions → **New**. Goal "300 custom tote bags for our tech event", product "Custom tote bags", quantity 300, target 1350, hard budget 1500, min quality 4.0, deadline 25 Oct 2026, max rounds 3 → **Create**. The mission opens as `MISSION-001`, status **Awaiting HOD**.
-2. **The HOD confirms the limits.** Sign in as the HOD, open `MISSION-001`, press **Confirm limits**. Status becomes **Active**.
+1. **Member A creates the mission.** Switch to A (avatar, top right). Missions → **New**. Goal "300 custom tote bags for our tech event", product "Custom tote bags", quantity 300, target 1350, hard budget 1500, min quality 4.0, deadline 25 Oct 2026, max rounds 3 → **Create**. The mission opens as `MISSION-001`, status **Awaiting HOD**.
+2. **The HOD confirms the limits.** Switch to the HOD, open `MISSION-001`, press **Confirm limits**. Status becomes **Active**.
 3. **Member A runs the agent.** As A, in the Agent box on `MISSION-001`, type "Find suppliers and send an enquiry to the cheapest within budget" → **Run agent**.
 4. **Approval required (Tier 1).** The run summary shows `search_suppliers` then `send_approved_message · T1` and status **Approval required**. Quotes list Suppliers A, B and C marked **DEMO DATA**. Under Approvals there is a **T1 Enquiry → Supplier B** card. Messages shows it as **Awaiting approval**.
 5. **A is refused, B approves.** As A, press **Approve**, give a reason, confirm: a red toast says you requested this action. As B, open Approvals (the badge shows 1), approve with a reason: toast "Approved · sent (simulated)". On the mission, the message is **Sent** with **SIMULATED**.

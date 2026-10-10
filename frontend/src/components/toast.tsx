@@ -28,8 +28,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className="toast-in pointer-events-auto flex max-w-md items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium text-white shadow-[var(--shadow-lg)]"
-            style={{ background: t.tone === "ok" ? "rgba(29,29,31,0.92)" : "rgba(215,0,21,0.94)" }}
+            className={`toast-in pointer-events-auto flex max-w-md items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium shadow-[var(--shadow-lg)] ${
+              t.tone === "ok" ? "bg-[var(--accent)] text-[var(--on-accent)]" : "bg-[var(--red)] text-[var(--surface)]"
+            }`}
           >
             {t.tone === "ok" ? <CheckIcon size={16} /> : <XIcon size={16} />}
             <span>{t.text}</span>

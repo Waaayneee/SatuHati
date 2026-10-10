@@ -19,7 +19,7 @@ def make_engine(url: str, schema: str | None = None) -> Engine:
         pool_pre_ping=True,
         pool_size=5,
         max_overflow=5,
-        connect_args={"connect_timeout": 10},
+        connect_args={"connect_timeout": 5},
     )
     if schema:
         if not _SCHEMA_RE.match(schema):

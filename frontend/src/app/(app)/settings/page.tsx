@@ -52,7 +52,7 @@ function Users() {
                     <td>
                       <span className="flex gap-1">
                         {u.roles.map((r) => (
-                          <Pill key={r} tone={r === "hod" ? "purple" : "blue"}>
+                          <Pill key={r} tone={r === "hod" ? "blue" : "gray"}>
                             {roleLabel(r)}
                           </Pill>
                         ))}

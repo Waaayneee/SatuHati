@@ -2,8 +2,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import OperationalError
 
-from app.api import agent_tools, approvals, audit, me, missions, users
+from app.api import agent_tools, approvals, audit, me, missions, profiles, users
 from app.config import settings
 from app.db import check_connection, get_engine
 from app.services.errors import Conflict, DomainError, InvalidInput, NotFound, PermissionDenied, Refused
@@ -15,7 +16,7 @@ app.add_middleware(
     allow_origins=[settings.frontend_origin],
     allow_credentials=False,
     allow_methods=["GET", "POST", "PATCH"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_headers=["Authorization", "Content-Type", "X-Profile-Id"],
 )
 
 _STATUS_FOR_ERROR: list[tuple[type[DomainError], int]] = [
@@ -33,6 +34,12 @@ def _domain_error(_request: Request, exc: DomainError) -> JSONResponse:
     return JSONResponse(status_code=code, content=jsonable_encoder({"detail": exc.message, **exc.details}))
 
 
+@app.exception_handler(OperationalError)
+def _database_unreachable(_request: Request, _exc: OperationalError) -> JSONResponse:
+    # Handled here (inside CORS) so the browser gets a readable 503 instead of a network error.
+    return JSONResponse(status_code=503, content={"detail": "Can't reach the database"})
+
+
 @app.get("/health")
 def health() -> dict:
     try:
@@ -43,6 +50,7 @@ def health() -> dict:
 
 
 app.include_router(me.router)
+app.include_router(profiles.router)
 app.include_router(missions.router)
 app.include_router(approvals.router)
 app.include_router(audit.router)

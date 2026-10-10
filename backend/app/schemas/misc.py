@@ -13,6 +13,10 @@ class MeOut(BaseModel):
     primary_role: str
 
 
+class ProfileOut(MeOut):
+    pass
+
+
 class UserOut(BaseModel):
     id: uuid.UUID
     email: str

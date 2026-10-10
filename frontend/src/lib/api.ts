@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { activeProfileId } from "./profile";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
@@ -22,20 +22,27 @@ function detailMessage(body: unknown, fallback: string): string {
   return fallback;
 }
 
-/** Calls the backend with the Supabase access token. The backend decides everything. */
-export async function api<T>(path: string, options: { method?: string; body?: unknown } = {}): Promise<T> {
-  const { data } = await supabase().auth.getSession();
-  const token = data.session?.access_token;
-  if (!token) throw new ApiError(401, "Signed out");
+/**
+ * Calls the backend as the chosen profile. The backend decides everything.
+ * `as` overrides the active profile (used while switching); `anonymous` sends no profile.
+ */
+export async function api<T>(
+  path: string,
+  options: { method?: string; body?: unknown; as?: string; anonymous?: boolean } = {},
+): Promise<T> {
+  const headers: Record<string, string> = {};
+  if (!options.anonymous) {
+    const profileId = options.as ?? activeProfileId();
+    if (!profileId) throw new ApiError(401, "No profile selected");
+    headers["X-Profile-Id"] = profileId;
+  }
+  if (options.body !== undefined) headers["Content-Type"] = "application/json";
 
   let response: Response;
   try {
     response = await fetch(`${API_BASE}${path}`, {
       method: options.method ?? "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        ...(options.body !== undefined ? { "Content-Type": "application/json" } : {}),
-      },
+      headers,
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
     });
   } catch {

@@ -47,6 +47,10 @@ class Settings(BaseSettings):
     # CORS
     frontend_origin: str = "http://localhost:3000"
 
+    # Demo only: lets the UI act as any seeded person (X-Profile-Id header, no password).
+    # Off by default. Never turn this on for a deployment other people can reach.
+    demo_profile_switch: bool = False
+
     @property
     def supabase_issuer(self) -> str:
         return f"{self.supabase_url.rstrip('/')}/auth/v1"

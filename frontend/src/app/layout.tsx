@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { ThemeSync } from "@/components/theme-sync";
+import { THEME_SCRIPT } from "@/lib/theme";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -7,16 +9,20 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f5f7" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
-  ],
+  themeColor: "#f4f8ec",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full">
-      <body className="min-h-full">{children}</body>
+    // Light by default. The inline script applies a saved dark choice before first paint.
+    <html lang="en" className="h-full" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
+      <body className="min-h-full">
+        <ThemeSync />
+        {children}
+      </body>
     </html>
   );
 }

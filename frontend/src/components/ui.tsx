@@ -3,11 +3,11 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "success";
 
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-[var(--accent)] text-white hover:brightness-110",
+  primary: "bg-[var(--accent)] text-[var(--on-accent)] hover:brightness-110",
   secondary: "bg-[var(--surface-2)] text-[var(--text)] border border-[var(--line-strong)] hover:bg-[var(--surface)]",
   ghost: "text-[var(--text-2)] hover:text-[var(--text)] hover:bg-[var(--line)]",
   danger: "bg-[var(--red-soft)] text-[var(--red)] hover:brightness-95",
-  success: "bg-[var(--green)] text-white hover:brightness-110",
+  success: "bg-[var(--green)] text-[var(--surface)] hover:brightness-110",
 };
 
 export function Button({

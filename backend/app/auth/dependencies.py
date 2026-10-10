@@ -18,15 +18,28 @@ from app.models.enums import Role, UserStatus
 
 _bearer = HTTPBearer(auto_error=False)
 
+PROFILE_HEADER = "X-Profile-Id"
+
 
 def _unauthorized(detail: str) -> HTTPException:
     return HTTPException(status.HTTP_401_UNAUTHORIZED, detail=detail, headers={"WWW-Authenticate": "Bearer"})
+
+
+def _registered_user(db: Session, user_id: uuid.UUID) -> Actor:
+    user = db.get(User, user_id)
+    if user is None or user.status != UserStatus.ACTIVE.value:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="This account is not registered in KawTeam")
+    roles = set(db.scalars(select(RoleAssignment.role).where(RoleAssignment.user_id == user_id)))
+    if not roles:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="This account has no KawTeam role")
+    return user_actor(user.id, roles, user.email)
 
 
 def get_current_actor(
     db: Session = Depends(get_db),
     credentials: HTTPAuthorizationCredentials | None = Depends(_bearer),
     x_agent_token: str | None = Header(default=None, alias="X-Agent-Token"),
+    x_profile_id: str | None = Header(default=None, alias=PROFILE_HEADER),
 ) -> Actor:
     if x_agent_token is not None:
         expected = settings.agent_service_token
@@ -35,21 +48,25 @@ def get_current_actor(
             raise _unauthorized("Invalid agent token")
         return AGENT_CLAUDE
 
-    if credentials is None:
-        raise _unauthorized("Missing bearer token")
-    try:
-        claims = verify_access_token(credentials.credentials)
-        user_id = uuid.UUID(str(claims["sub"]))
-    except (TokenError, ValueError):
-        raise _unauthorized("Invalid or expired token") from None
+    if credentials is not None:
+        try:
+            claims = verify_access_token(credentials.credentials)
+            user_id = uuid.UUID(str(claims["sub"]))
+        except (TokenError, ValueError):
+            raise _unauthorized("Invalid or expired token") from None
+        return _registered_user(db, user_id)
 
-    user = db.get(User, user_id)
-    if user is None or user.status != UserStatus.ACTIVE.value:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="This account is not registered in KawTeam")
-    roles = set(db.scalars(select(RoleAssignment.role).where(RoleAssignment.user_id == user_id)))
-    if not roles:
-        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="This account has no KawTeam role")
-    return user_actor(user.id, roles, user.email)
+    if x_profile_id is not None:
+        # Demo profile switching: the header names the person, no password.
+        if not settings.demo_profile_switch:
+            raise _unauthorized("Profile switching is turned off")
+        try:
+            user_id = uuid.UUID(x_profile_id)
+        except ValueError:
+            raise _unauthorized("Unknown profile") from None
+        return _registered_user(db, user_id)
+
+    raise _unauthorized("Missing bearer token")
 
 
 def require_user(actor: Actor = Depends(get_current_actor)) -> Actor:

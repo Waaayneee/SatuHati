@@ -73,9 +73,15 @@ export const GearIcon = (p: IconProps) => (
     <path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.5-2-3.4-2.3.9a7.6 7.6 0 0 0-2.6-1.5L14 2.5h-4l-.5 2.5a7.6 7.6 0 0 0-2.6 1.5l-2.3-.9-2 3.4 2 1.5a7.6 7.6 0 0 0 0 3l-2 1.5 2 3.4 2.3-.9a7.6 7.6 0 0 0 2.6 1.5l.5 2.5h4l.5-2.5a7.6 7.6 0 0 0 2.6-1.5l2.3.9 2-3.4z" />
   </Icon>
 );
-export const LogoutIcon = (p: IconProps) => (
+export const SunIcon = (p: IconProps) => (
   <Icon {...p}>
-    <path d="M14 4.5h4.5v15H14M10 16l4-4-4-4M14 12H4" />
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4" />
+  </Icon>
+);
+export const MoonIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />
   </Icon>
 );
 export const ChevronIcon = (p: IconProps) => (
@@ -111,14 +117,15 @@ export function Logo({ size = 26 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
       <defs>
-        <linearGradient id="kt" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#0a84ff" />
-          <stop offset="1" stopColor="#5e5ce6" />
+        <linearGradient id="kt-mark" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#d6fb00" />
+          <stop offset="0.55" stopColor="#3d8a52" />
+          <stop offset="1" stopColor="#00545f" />
         </linearGradient>
       </defs>
-      <rect width="32" height="32" rx="9" fill="url(#kt)" />
-      <rect x="7" y="7" width="11" height="11" rx="3.5" fill="none" stroke="#fff" strokeWidth="2.4" />
-      <rect x="14" y="14" width="11" height="11" rx="3.5" fill="#fff" fillOpacity="0.92" />
+      <rect width="32" height="32" rx="9" fill="url(#kt-mark)" />
+      <rect x="7" y="7" width="11" height="11" rx="3.5" fill="none" stroke="#ecffb6" strokeWidth="2.4" />
+      <rect x="14" y="14" width="11" height="11" rx="3.5" fill="#ecffb6" fillOpacity="0.95" />
     </svg>
   );
 }

@@ -71,3 +71,16 @@ export function roleLabel(role: string | null | undefined): string {
   if (role === "agent") return "Agent";
   return "—";
 }
+
+/** "chrispr" or "Chris Tan" from the profile name, else the email's local part. */
+export function displayName(person: { name: string | null; email: string }): string {
+  const raw = (person.name ?? "").trim() || person.email.split("@")[0];
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
+/** One letter for a one-word name, two for "First Last". */
+export function initials(person: { name: string | null; email: string }): string {
+  const words = displayName(person).split(/\s+/).filter(Boolean);
+  const letters = words.length > 1 ? words[0][0] + words[words.length - 1][0] : words[0][0];
+  return letters.toUpperCase();
+}

@@ -4,14 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { roleLabel } from "@/lib/format";
 import type { ApprovalSummary } from "@/lib/types";
-import { GearIcon, InboxIcon, ListIcon, Logo, LogoutIcon, TargetIcon } from "./icons";
+import { GearIcon, InboxIcon, ListIcon, Logo, TargetIcon } from "./icons";
+import { ProfileMenu } from "./profile-menu";
 import { useSession } from "./session";
 
 export function Nav() {
   const pathname = usePathname();
-  const { me, isHod, signOut } = useSession();
+  const { isHod } = useSession();
   const [pending, setPending] = useState(0);
 
   useEffect(() => {
@@ -53,14 +53,15 @@ export function Nav() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-label={item.badge ? `${item.label}, ${item.badge} pending` : item.label}
                   className={`press flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.8125rem] font-medium whitespace-nowrap ${
-                    active ? "bg-[var(--surface)] text-[var(--text)] shadow-[var(--shadow-sm)]" : "text-[var(--text-2)] hover:text-[var(--text)]"
+                    active ? "bg-[var(--accent)] text-[var(--on-accent)] shadow-[var(--shadow-sm)]" : "text-[var(--text-2)] hover:text-[var(--text)]"
                   }`}
                 >
                   {item.icon}
                   <span className="hidden md:inline">{item.label}</span>
                   {item.badge ? (
-                    <span className="min-w-[1.15rem] rounded-full bg-[var(--red)] px-1 text-center text-[0.68rem] leading-[1.15rem] font-semibold text-white">
+                    <span className="min-w-[1.15rem] rounded-full bg-[var(--red)] px-1 text-center text-[0.68rem] leading-[1.15rem] font-semibold text-[var(--surface)]">
                       {item.badge}
                     </span>
                   ) : null}
@@ -70,23 +71,8 @@ export function Nav() {
           </div>
         </nav>
 
-        <div className="flex shrink-0 items-center gap-2">
-          <span
-            className={`rounded-full px-2.5 py-1 text-[0.72rem] font-semibold ${
-              isHod ? "bg-[var(--purple-soft)] text-[var(--purple)]" : "bg-[var(--accent-soft)] text-[var(--accent)]"
-            }`}
-            title={me.email}
-          >
-            {roleLabel(me.primary_role)}
-          </span>
-          <button
-            onClick={signOut}
-            className="press rounded-full p-2 text-[var(--text-2)] hover:bg-[var(--line)] hover:text-[var(--text)]"
-            aria-label="Sign out"
-            title={`Sign out ${me.email}`}
-          >
-            <LogoutIcon size={17} />
-          </button>
+        <div className="flex shrink-0 items-center">
+          <ProfileMenu />
         </div>
       </div>
     </header>

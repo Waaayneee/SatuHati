@@ -23,12 +23,20 @@ from tests.helpers import TEST_AGENT_TOKEN, TEST_JWT_SECRET, People, make_user
 @pytest.fixture(scope="session", autouse=True)
 def _test_settings() -> Iterator[None]:
     """Tests mint HS256 tokens with a throwaway secret and use a throwaway agent token."""
-    names = ("supabase_jwt_mode", "supabase_jwt_secret", "agent_service_token", "anthropic_fallbacks")
+    names = (
+        "supabase_jwt_mode",
+        "supabase_jwt_secret",
+        "agent_service_token",
+        "anthropic_fallbacks",
+        "demo_profile_switch",
+    )
     saved = {name: getattr(settings, name) for name in names}
     settings.supabase_jwt_mode = "secret"
     settings.supabase_jwt_secret = TEST_JWT_SECRET
     settings.agent_service_token = TEST_AGENT_TOKEN
     settings.anthropic_fallbacks = ""
+    # Off unless a test turns it on, whatever backend/.env says.
+    settings.demo_profile_switch = False
     yield
     for name, value in saved.items():
         setattr(settings, name, value)
