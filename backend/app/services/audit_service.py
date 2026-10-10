@@ -3,12 +3,15 @@
 import json
 import re
 import uuid
+from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import Any
 
 from sqlalchemy.orm import Session
 
 from app.auth.actor import Actor
 from app.models import AuditLog
+from app.services.errors import DomainError, PermissionDenied, Refused
 
 _SENSITIVE_KEY = re.compile(r"token|secret|password|passwd|api[_-]?key|authorization|cookie", re.IGNORECASE)
 # Message bodies are stored by reference (message_id), never copied into the log.
@@ -74,3 +77,35 @@ def record(
     db.add(row)
     db.flush()
     return row
+
+
+def refusal_status(exc: DomainError) -> str:
+    return "refused" if isinstance(exc, (Refused, PermissionDenied)) else "error"
+
+
+@contextmanager
+def audited_refusals(
+    db: Session,
+    actor: Actor,
+    event_type: str,
+    mission_id: uuid.UUID | None = None,
+    input_ref: dict[str, Any] | None = None,
+) -> Iterator[None]:
+    """If the block raises a DomainError: roll back its partial work, record the
+    refusal, commit that audit row, then re-raise."""
+    try:
+        yield
+    except DomainError as exc:
+        db.rollback()
+        record(
+            db,
+            actor,
+            event_type,
+            mission_id=mission_id,
+            input_ref=input_ref,
+            result_ref=exc.details or None,
+            status=refusal_status(exc),
+            error=exc.message,
+        )
+        db.commit()
+        raise

@@ -91,3 +91,9 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 - `app/auth/dependencies.py`: `get_current_actor` maps a Bearer token to a `users` row and its roles (no role or unknown user gives 403). `X-Agent-Token` equal to `AGENT_SERVICE_TOKEN` (compared with `secrets.compare_digest`) becomes `agent:claude` with no roles. An empty configured token never authenticates.
 - CORS allows only `FRONTEND_ORIGIN`. Domain errors map to 404/403/409/422.
 - Check: local ES256 key test. Valid token accepted; wrong audience, wrong issuer, expired, anon role and forged signature all rejected. Full HTTP tests come in Step 1.10.
+
+### Step 1.4. Audit service
+
+- `audit_service.record(...)` inserts one row in the caller's transaction. `sanitize()` redacts any key that looks like a token, secret, password, API key, authorization or cookie, and replaces message bodies and any string over 500 chars with `[omitted: N chars]` (bodies are referenced by `message_id`).
+- `audited_refusals(...)` context manager: on a refusal it rolls back the partial work, records the refusal, commits the audit row, then re-raises.
+- Check: sanitizer output verified by hand (`api_key`, `access_token` redacted; `body` and a 600-char string omitted).
