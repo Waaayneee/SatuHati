@@ -1,0 +1,14 @@
+{
+  "meta": null,
+  "content": [
+    {
+      "type": "text",
+      "text": "Item Details:\n\n## dialog\n**Type:** registry:ui\n**Files:** 1 file(s)\n**Dependencies:** cn, radix-ui\n\n---\n\n## dropdown-menu\n**Type:** registry:ui\n**Files:** 1 file(s)\n**Dependencies:** cn, radix-ui\n\n---\n\n## calendar\n**Type:** registry:ui\n**Files:** 1 file(s)\n**Dependencies:** cn, react-day-picker@latest, date-fns\n\n---\n\n## button\n**Type:** registry:ui\n**Files:** 1 file(s)\n**Dependencies:** cn, radix-ui",
+      "annotations": null,
+      "meta": null
+    }
+  ],
+  "structured_content": null,
+  "is_error": false,
+  "result_type": "complete"
+}

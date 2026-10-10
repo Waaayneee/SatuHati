@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "kawteam": {
+      "type": "stdio",
+      "command": "C:\\REPLACE_WITH_PROJECT\\apps\\api\\.venv\\Scripts\\python.exe",
+      "args": ["C:\\REPLACE_WITH_PROJECT\\apps\\api\\src\\kawteam\\mcp\\server.py"]
+    }
+  }
+}

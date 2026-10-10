@@ -1,0 +1,15 @@
+[project]
+name = "kawteam-tools"
+version = "0.1.0"
+description = "KawTeam event memory, supplier workflow and FastAPI backend"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.File", "Depends", "File"]
