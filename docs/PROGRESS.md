@@ -77,3 +77,9 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 - Migration `alembic/versions/0001_phase1_initial.py` (create-table code rendered from the models, so they match). Hardening: append-only trigger on `audit_log` (blocks UPDATE, DELETE and TRUNCATE), RLS enabled with no policies on every table including `alembic_version`. Mission codes come from sequence `mission_code_seq`.
 - `alembic -x target=test upgrade head` migrates the `kawteam_test` schema.
 - Checks: `alembic upgrade head --sql` renders cleanly offline (12 tables, enum, sequence, triggers, RLS). Live `alembic upgrade head` on both targets and `python -m scripts.check_audit_append_only` are **pending the network fix**.
+
+### Step 1.2. Seed data
+
+- `app/services/seed_service.py` holds the 12 approval policies from the kickoff table (Tier 0 roles stored as `["any"]`, Tier 1 as `["committee_member", "hod"]` with the not-requester note, Tier 2/3 as `["hod"]`).
+- `python -m scripts.seed` looks the three users up in Supabase `auth.users` through the database connection (no secret key needed), makes each seeded user hold exactly its configured role, writes `user.created` / `role.assigned` / `role.removed` audit rows, and upserts the policies. Safe to re-run.
+- Check: imports compile. Live run is **pending the network fix**.
