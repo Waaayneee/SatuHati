@@ -1,0 +1,16 @@
+node_modules/
+.next/
+out/
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.env
+.env.*
+!.env.example
+test-results/
+playwright-report/
+.worktrees/
+*.tsbuildinfo
+*.log
+.migration-config.json

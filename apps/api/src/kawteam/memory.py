@@ -1,0 +1,162 @@
+import io
+import re
+import zipfile
+from pathlib import Path
+
+from docx import Document
+from openpyxl import load_workbook
+from pypdf import PdfReader
+
+
+def extract_text(filename, content):
+    if not content or len(content) > 3 * 1024 * 1024:
+        raise ValueError("Upload a non-empty file up to 3 MB.")
+    suffix = Path(filename).suffix.lower()
+    if suffix in {".txt", ".md", ".csv"}:
+        text = content.decode("utf-8-sig")
+    elif suffix == ".pdf":
+        reader = PdfReader(io.BytesIO(content))
+        if len(reader.pages) > 40:
+            raise ValueError("PDFs are limited to 40 pages.")
+        text = "\n".join(page.extract_text() or "" for page in reader.pages)
+    elif suffix in {".docx", ".xlsx"}:
+        with zipfile.ZipFile(io.BytesIO(content)) as archive:
+            if sum(item.file_size for item in archive.infolist()) > 25 * 1024 * 1024:
+                raise ValueError("Expanded document is too large.")
+        if suffix == ".docx":
+            doc = Document(io.BytesIO(content))
+            text = "\n".join(
+                [p.text for p in doc.paragraphs]
+                + [
+                    " | ".join(c.text for c in row.cells)
+                    for table in doc.tables
+                    for row in table.rows
+                ]
+            )
+        else:
+            book = load_workbook(io.BytesIO(content), read_only=True, data_only=True)
+            text = "\n".join(
+                f"{sheet.title}: " + " | ".join(str(cell) for cell in row if cell is not None)
+                for sheet in book
+                for row in sheet.iter_rows(values_only=True)
+            )
+            book.close()
+    else:
+        raise ValueError("Supported files: PDF, DOCX, XLSX, TXT, Markdown and CSV.")
+    text = text.strip()
+    if not text:
+        raise ValueError(
+            "No readable text found. Scanned PDFs need OCR; upload a text version for now."
+        )
+    if len(text) > 80000:
+        raise ValueError("Extracted text is limited to 80,000 characters per file.")
+    return text
+
+
+def resolve_event(message, events, selected):
+    matches = [
+        event
+        for event in events
+        if re.search(r"(?<!\w)" + re.escape(event["name"]) + r"(?!\w)", message, re.IGNORECASE)
+    ]
+    matches = [
+        event
+        for event in matches
+        if not any(
+            event["name"].casefold() != other["name"].casefold()
+            and event["name"].casefold() in other["name"].casefold()
+            for other in matches
+        )
+    ]
+    if len(matches) > 1 and len({e["name"].casefold() for e in matches}) == 1:
+        return next((e for e in matches if e["id"] == selected), None)
+    if len(matches) > 1:
+        raise ValueError("You mentioned multiple events. Choose one for this conversation.")
+    if matches:
+        return matches[0]
+    return next((event for event in events if event["id"] == selected), None)
+
+
+def retrieve(event_id, query, documents):
+    words = set(re.findall(r"\w+", query.lower()))
+    chunks = []
+    for document in documents:
+        if document["eventId"] != event_id:
+            continue
+        for index in range(0, len(document["text"]), 1200):
+            excerpt = document["text"][index : index + 1200]
+            score = len(words & set(re.findall(r"\w+", excerpt.lower())))
+            chunks.append(
+                (
+                    score,
+                    {
+                        "documentId": document["id"],
+                        "name": document["name"],
+                        "chunk": index // 1200,
+                        "excerpt": excerpt,
+                    },
+                )
+            )
+    return [chunk for _, chunk in sorted(chunks, key=lambda row: row[0], reverse=True)[:6]]
+
+
+def amount(text):
+    match = re.search(
+        r"(?:RM\s*([\d,]+(?:\.\d{1,2})?)|([\d,]+(?:\.\d{1,2})?)\s*RM)", text, re.IGNORECASE
+    )
+    return (
+        round(float((match.group(1) or match.group(2)).replace(",", "")) * 100) if match else None
+    )
+
+
+def facts_from_text(text):
+    result = {}
+    labelled_budget = re.search(
+        r"(?:budget|within|spend up to|maximum spend|limit)[^\n.!?]{0,35}?(?:RM\s*[\d,]+(?:\.\d{1,2})?|[\d,]+(?:\.\d{1,2})?\s*RM)",
+        text,
+        re.IGNORECASE,
+    )
+    budget = amount(labelled_budget.group(0)) if labelled_budget else None
+    if budget is not None:
+        result["budgetSen"] = budget
+    quantity = re.search(
+        r"(\d+)\s+(?:more\s+|cotton\s+|custom\s+|printed\s+)*(?:tote(?:\s+bags)?|bags|items|units|(?:t-?)?shirts|shirts)",
+        text,
+        re.IGNORECASE,
+    )
+    if quantity:
+        result["quantity"] = int(quantity.group(1))
+    deadline = re.search(
+        r"(?:deadline|deliver(?:y)?(?:\s+date)?|arrive(?:\s+by)?|need(?:ed)?\s+by|event\s+date)[^\n]{0,30}?\b(20\d{2}-\d{2}-\d{2})\b",
+        text,
+        re.IGNORECASE,
+    )
+    if deadline:
+        from datetime import date
+
+        try:
+            result["deadline"] = date.fromisoformat(deadline.group(1)).isoformat()
+        except ValueError:
+            pass
+    location = re.search(
+        r"(?:location|venue|delivery location)\s*:\s*([^\n]+)", text, re.IGNORECASE
+    )
+    if location:
+        result["location"] = location.group(1).strip()[:200]
+    return result
+
+
+def intake(message, event):
+    facts = event.get("facts", {})
+    overrides = facts_from_text(message)
+    budget = overrides.get("budgetSen", facts.get("budgetSen"))
+    return {
+        "title": f"Partners for {event['name']}",
+        "goal": message,
+        "eventId": event["id"],
+        "quantity": overrides.get("quantity", facts.get("quantity")),
+        "budgetSen": budget,
+        "targetSen": round(budget * 0.9) if budget else None,
+        "deadline": overrides.get("deadline", facts.get("deadline")),
+        "location": overrides.get("location", facts.get("location")),
+    }

@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@import "./legacy.css";
+@import "./project.css";
+@import "./chat.css";
+@import "./theme.css";
+@theme inline {
+ --color-background: var(--kt-bg);
+ --color-foreground: var(--kt-text);
+ --color-primary: var(--kt-accent);
+ --color-primary-foreground: var(--kt-on-accent);
+ --color-secondary: var(--kt-surface-2);
+ --color-secondary-foreground: var(--kt-text);
+ --color-muted: var(--kt-surface-2);
+ --color-muted-foreground: var(--kt-text-3);
+ --color-accent: var(--kt-fill);
+ --color-accent-foreground: var(--kt-text);
+ --color-border: var(--kt-line);
+ --color-input: var(--kt-line-strong);
+ --color-ring: var(--kt-accent);
+ --color-popover: var(--kt-surface);
+ --color-popover-foreground: var(--kt-text);
+ --color-destructive: var(--kt-danger);
+ --radius-sm: 8px;
+ --radius-md: 10px;
+ --radius-lg: 12px;
+ --radius-xl: 16px;
+}
