@@ -6,7 +6,7 @@ const page=await browser.newPage({viewport:{width:1440,height:1000}});
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 try{
   await page.goto('http://127.0.0.1:3000');
-  await page.getByRole('heading',{name:'What are we working on?',exact:true}).waitFor({timeout:10000});
+  await page.getByRole('heading',{name:'What are we going to KawTeam today?',exact:true}).waitFor({timeout:10000});
   await page.getByRole('link',{name:/Tech Night/}).first().waitFor();
   await mkdir('test-results',{recursive:true});
   await page.screenshot({path:'test-results/new-chat-desktop.png',fullPage:true});
@@ -18,7 +18,7 @@ try{
   const projectId=page.url().split('/projects/')[1].split('/')[0];
   await writeFile('test-results/created-project.json',JSON.stringify({id:projectId,name}));
   await page.getByLabel('Upload project files').setInputFiles({name:'event-plan.txt',mimeType:'text/plain',buffer:Buffer.from('Sunway Got Talent proposal\nBudget RM2000\nNeed 50 printed shirts\nDelivery deadline: 2026-10-25\nLocation: Subang Jaya\n')});
-  await page.getByText('event-plan.txt',{exact:false}).first().waitFor();
+  await page.getByRole('status').getByText('1 file added to project memory.').waitFor({timeout:30000});
   await page.getByLabel('Message KawTeam').fill('Find shirt printing vendors within RM2000 for 50 shirts.');
   await page.getByRole('button',{name:'Send message',exact:true}).click();
   await page.getByRole('link',{name:/Open full request/}).waitFor({timeout:30000});
@@ -46,7 +46,7 @@ try{
   await page.getByRole('heading',{name:'Calendar',exact:true}).waitFor();
   await page.getByText('25 October 2026',{exact:false}).first().waitFor();
   await page.getByRole('button',{name:'New chat',exact:true}).click();
-  await page.getByRole('heading',{name:'What are we working on?',exact:true}).waitFor();
+  await page.getByRole('heading',{name:'What are we going to KawTeam today?',exact:true}).waitFor();
   for(const width of [1280,1440]){
     await page.setViewportSize({width,height:900});
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`Overflow at ${width}`);

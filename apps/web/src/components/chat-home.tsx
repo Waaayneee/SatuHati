@@ -26,9 +26,10 @@ function NameForm({initial,label,disabled,onSubmit,onCancel}:{initial:string;lab
 
 export function NewChat(){
   const router=useRouter();const {state,profile,loading,acceptState,notify}=useDemo();const {createProject,uploadFiles}=useProjectActions();
-  const [messages,setMessages]=useState<LocalMessage[]>([]);const [input,setInput]=useState('');const [working,setWorking]=useState('');const [done,setDone]=useState<string[]>([]);const [naming,setNaming]=useState<string|null>(null);
+  const [messages,setMessages]=useState<LocalMessage[]>([]);const [input,setInput]=useState('');const [working,setWorking]=useState('');const [done,setDone]=useState<string[]>([]);const [naming,setNaming]=useState<string|null>(null);const [projectId,setProjectId]=useState<string|null>(null);
   const fileInput=useRef<HTMLInputElement>(null);const scrollPane=useRef<HTMLDivElement>(null);const pending=useRef<{message:string;projectId:string;id:string}|null>(null);
   const observer=profile==='observer';
+  const selectedProject=state.events.find(p=>p.id===projectId);
   useEffect(()=>{if(scrollPane.current)scrollPane.current.scrollTop=scrollPane.current.scrollHeight;},[messages.length,working]);
   const say=(role:LocalMessage['role'],body:string,card?:Card)=>{const id=crypto.randomUUID();setMessages(previous=>[...previous,{id,role,body,card}]);return id;};
   const finish=(id:string)=>setDone(previous=>[...previous,id]);
@@ -84,6 +85,7 @@ export function NewChat(){
     }
     if(approvalIntent.test(text))return void say('assistant',attention.length?'Here’s what is waiting on a human decision.':'Nothing needs approval right now.',{kind:'approvals',caseIds:attention.map(c=>c.id)});
     if(observer)return void readOnly();
+    if(selectedProject)return void send(text,selectedProject.id);
     const found=mentions(text,state.events);
     if(found.length===1)return void send(text,found[0].id);
     say('assistant',state.events.length?'Which project is this for?':'Let’s create a project for this first.',{kind:'pick',message:text});
@@ -92,6 +94,7 @@ export function NewChat(){
     if(!files?.length)return;const list=Array.from(files);if(fileInput.current)fileInput.current.value='';
     say('user',`Attached ${list.map(f=>f.name).join(', ')}`);
     if(observer)return void readOnly();
+    if(selectedProject)return void upload(list,selectedProject.id);
     say('assistant',state.events.length?'Which project should these files go to?':'Let’s create a project for these files first.',{kind:'pick',files:list});
   }
 
@@ -105,14 +108,14 @@ export function NewChat(){
     return <div className="kt-choice-row">{state.events.map(p=><Button key={p.id} size="sm" variant="outline" disabled={closed} onClick={()=>void pickProject(message,p.id)}>{p.name}</Button>)}{naming===message.id?<NameForm initial="" label="Create" disabled={closed||observer} onSubmit={name=>void pickNew(message,name)} onCancel={()=>setNaming(null)}/>:<Button size="sm" variant="ghost" disabled={closed||observer} onClick={()=>setNaming(message.id)}><FolderPlus size={14}/>New project</Button>}</div>;
   }
 
-  const composer=<Composer value={input} onChange={setInput} onSubmit={()=>handle(input.trim())} onAttach={()=>fileInput.current?.click()} sending={!!working} uploading={!!working} disabled={loading} placeholder={observer?'Observer view · ask what needs approval':'Message KawTeam…'}/>;
+  const composer=<Composer value={input} onChange={setInput} onSubmit={()=>handle(input.trim())} onAttach={()=>fileInput.current?.click()} sending={!!working} uploading={!!working} disabled={loading} placeholder={observer?'Observer view · ask what needs approval':'Message KawTeam…'} projects={state.events.map(p=>({id:p.id,name:p.name}))} selectedProjectId={selectedProject?.id??null} onSelectProject={setProjectId}/>;
   return <div className="kt-chat">
     <input className="sr-only" ref={fileInput} type="file" multiple accept={uploadAccept} aria-label="Upload project files" onChange={e=>attach(e.target.files)}/>
     {messages.length?<>
       <div className="kt-chat-scroll" ref={scrollPane} aria-live="polite"><div className="kt-thread">{messages.map(m=><MessageRow key={m.id} role={m.role}>{m.body&&<p>{m.body}</p>}{m.role==='assistant'&&renderCard(m)}</MessageRow>)}{working&&<Thinking label={working}/>}</div></div>
       <div className="kt-composer-dock">{composer}</div>
     </>:<div className="kt-chat-empty">
-      <h1>What are we going to KawTeam today?</h1>
+      <h1>What are we going to <span className="kt-highlight-pill">KawTeam</span> today?</h1>
       {composer}
       <div className="kt-chips"><button onClick={()=>handle('Start a new project')} disabled={loading}><FolderPlus size={15}/>Start a new project</button><button onClick={()=>handle('Find shirt printing vendors for 50 shirts within RM2,000')} disabled={loading}><Search size={15}/>Find shirt printing vendors for 50 shirts within RM2,000</button><button onClick={()=>handle('Show what needs my approval')} disabled={loading}><ShieldCheck size={15}/>Show what needs my approval</button><button onClick={()=>fileInput.current?.click()} disabled={loading}><Paperclip size={15}/>Upload a project file</button></div>
     </div>}

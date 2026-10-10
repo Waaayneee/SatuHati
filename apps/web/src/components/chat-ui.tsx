@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import {useId,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
-import {ArrowRight,ArrowUp,Check,MessageSquare,Paperclip,Search} from 'lucide-react';
+import {ArrowRight,ArrowUp,Check,Folder,MessageSquare,Paperclip,Search,X} from 'lucide-react';
 import {Button} from '@/components/ui/button';
+import {DropdownMenu,DropdownMenuContent,DropdownMenuItem,DropdownMenuLabel,DropdownMenuSeparator,DropdownMenuTrigger} from '@/components/ui/dropdown-menu';
 import {api,type EventDocument,type EventMemory} from '@/lib/workspace';
 import {dateLabel,eligible,fitReason,money,totalCost,type ProcurementCase} from '@/lib/demo';
 import {useDemo} from './workspace-context';
@@ -19,14 +20,38 @@ export function useProjectActions(){
 
 export const uploadAccept='.pdf,.docx,.xlsx,.txt,.md,.csv';
 
-export function Composer({value,onChange,onSubmit,onAttach,disabled=false,sending=false,uploading=false,placeholder}:{value:string;onChange:(value:string)=>void;onSubmit:()=>void;onAttach:()=>void;disabled?:boolean;sending?:boolean;uploading?:boolean;placeholder:string}){
+export type ComposerProject={id:string;name:string};
+
+/** Projects pill in the composer toolbar: a picker on the new chat, a locked label inside a project. */
+function ProjectPicker({projects,selectedProjectId,onSelectProject,lockedProjectName,disabled}:{projects?:ComposerProject[];selectedProjectId?:string|null;onSelectProject?:(id:string|null)=>void;lockedProjectName?:string;disabled:boolean}){
+  if(lockedProjectName)return <span className="kt-project-control selected locked"><button type="button" className="kt-project-pill" aria-disabled="true" title={`This chat belongs to ${lockedProjectName}`} aria-label={`Project: ${lockedProjectName}. This chat belongs to ${lockedProjectName}.`} onClick={e=>e.preventDefault()}><Folder size={17}/><span>{lockedProjectName}</span></button></span>;
+  if(!projects)return null;
+  const selected=projects.find(p=>p.id===selectedProjectId);
+  return <span className={`kt-project-control ${selected?'selected':''}`}>
+    <DropdownMenu>
+      <DropdownMenuTrigger className="kt-project-pill" disabled={disabled} aria-label={selected?`Project: ${selected.name}. Change project`:'Projects: no project selected. Choose a project for this message'}><Folder size={17}/><span>{selected?selected.name:'Projects'}</span></DropdownMenuTrigger>
+      <DropdownMenuContent side="top" align="start" className="kt-profile-menu kt-project-menu">
+        <DropdownMenuLabel>Send to project</DropdownMenuLabel><DropdownMenuSeparator/>
+        {projects.length?projects.map(p=><DropdownMenuItem key={p.id} onSelect={()=>onSelectProject?.(p.id)}><Folder size={16}/><span className="kt-project-menu-name">{p.name}</span>{p.id===selected?.id&&<Check size={15}/>}</DropdownMenuItem>):<DropdownMenuItem disabled>No projects yet</DropdownMenuItem>}
+      </DropdownMenuContent>
+    </DropdownMenu>
+    {selected&&<button type="button" className="kt-project-clear" aria-label={`Clear project ${selected.name}`} onClick={()=>onSelectProject?.(null)}><X size={15}/></button>}
+  </span>;
+}
+
+export function Composer({value,onChange,onSubmit,onAttach,disabled=false,sending=false,uploading=false,placeholder,projects,selectedProjectId,onSelectProject,lockedProjectName}:{value:string;onChange:(value:string)=>void;onSubmit:()=>void;onAttach:()=>void;disabled?:boolean;sending?:boolean;uploading?:boolean;placeholder:string;projects?:ComposerProject[];selectedProjectId?:string|null;onSelectProject?:(id:string|null)=>void;lockedProjectName?:string}){
   const ref=useRef<HTMLTextAreaElement>(null);const id=useId();
-  useLayoutEffect(()=>{const el=ref.current;if(!el)return;el.style.height='auto';el.style.height=`${Math.min(el.scrollHeight,200)}px`;},[value]);
+  useLayoutEffect(()=>{const el=ref.current;if(!el)return;el.style.height='auto';el.style.height=`${Math.min(el.scrollHeight,280)}px`;},[value]);
   return <form className="kt-composer" onSubmit={e=>{e.preventDefault();if(value.trim()&&!sending&&!disabled)onSubmit();}}>
-    <button type="button" className="kt-composer-icon" aria-label="Attach files" onClick={onAttach} disabled={disabled||uploading}><Paperclip size={18}/></button>
     <label htmlFor={id} className="sr-only">Message KawTeam</label>
-    <textarea id={id} ref={ref} rows={1} maxLength={5000} value={value} placeholder={placeholder} disabled={disabled} onChange={e=>onChange(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();e.currentTarget.form?.requestSubmit();}}}/>
-    <button type="submit" className="kt-composer-send" aria-label="Send message" disabled={!value.trim()||sending||disabled}><ArrowUp size={18}/></button>
+    <textarea id={id} ref={ref} rows={3} maxLength={5000} value={value} placeholder={placeholder} disabled={disabled} onChange={e=>onChange(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.nativeEvent.isComposing){e.preventDefault();e.currentTarget.form?.requestSubmit();}}}/>
+    <div className="kt-composer-toolbar">
+      <div className="kt-composer-tools">
+        <ProjectPicker projects={projects} selectedProjectId={selectedProjectId} onSelectProject={onSelectProject} lockedProjectName={lockedProjectName} disabled={disabled}/>
+        <button type="button" className="kt-composer-icon" aria-label="Attach files" onClick={onAttach} disabled={disabled||uploading}><Paperclip size={19}/></button>
+      </div>
+      <button type="submit" className="kt-composer-send" aria-label="Send message" disabled={!value.trim()||sending||disabled}><ArrowUp size={20}/></button>
+    </div>
   </form>;
 }
 

@@ -1,6 +1,19 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 import { DemoProvider } from "@/components/kawteam";
+
+// TeX Gyre Heros, a free Helvetica clone (GUST Font License, see ./fonts/GUST-FONT-LICENSE.txt).
+const heros = localFont({
+  src: [
+    { path: "./fonts/texgyreheros-regular.otf", weight: "400", style: "normal" },
+    { path: "./fonts/texgyreheros-italic.otf", weight: "400", style: "italic" },
+    { path: "./fonts/texgyreheros-bold.otf", weight: "700", style: "normal" },
+    { path: "./fonts/texgyreheros-bolditalic.otf", weight: "700", style: "italic" },
+  ],
+  variable: "--font-heros",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "KawTeam — Your project workspace",
@@ -13,8 +26,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body><DemoProvider>{children}</DemoProvider></body>
+    <html lang="en" className={heros.variable}>
+      <body>
+        <div className="kt-aurora" aria-hidden="true"><span/><span/><span/><span/><span/></div>
+        <DemoProvider>{children}</DemoProvider>
+      </body>
     </html>
   );
 }
