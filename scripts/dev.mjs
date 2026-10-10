@@ -103,6 +103,8 @@ async function reportDatabase() {
       const health = await (await fetch(`http://127.0.0.1:${API_PORT}/health`)).json();
       if (health.database === "ok") {
         say("Database connected.");
+      } else if (health.database === "no_tables") {
+        say("The database is reachable but empty. Run once in backend: alembic upgrade head, then python -m scripts.seed", "error");
       } else {
         say("Can't reach the database. This network blocks port 5432.", "error");
         say("The app opens but shows that message until you switch to a phone hotspot and press Try again.", "error");

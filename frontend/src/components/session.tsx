@@ -25,11 +25,21 @@ type State =
 
 const SessionContext = createContext<Session | null>(null);
 
-const DATABASE_DOWN: State = {
-  status: "failed",
-  message: "Can't reach the database",
-  hint: "This network blocks the database port (5432). Switch to a phone hotspot, then try again.",
-};
+/** The backend answers 503 when the database is unreachable or has no tables yet. */
+function databaseProblem(error: ApiError): State {
+  if (error.message.includes("no KawTeam tables")) {
+    return {
+      status: "failed",
+      message: "The database is empty",
+      hint: "In backend, run alembic upgrade head, then python -m scripts.seed",
+    };
+  }
+  return {
+    status: "failed",
+    message: "Can't reach the database",
+    hint: "This network blocks the database port (5432). Switch to a phone hotspot, then try again.",
+  };
+}
 
 async function loadSession(): Promise<State> {
   let profiles: Me[];
@@ -43,7 +53,7 @@ async function loadSession(): Promise<State> {
         hint: "Set DEMO_PROFILE_SWITCH=true in backend/.env, then restart the backend",
       };
     }
-    if (error instanceof ApiError && error.status === 503) return DATABASE_DOWN;
+    if (error instanceof ApiError && error.status === 503) return databaseProblem(error);
     if (error instanceof ApiError && error.status === 0) {
       return { status: "failed", message: errorText(error), hint: "Start KawTeam with npm run dev in the project folder" };
     }
@@ -60,7 +70,7 @@ async function loadSession(): Promise<State> {
     setActiveProfile(id);
     return { status: "ready", me, profiles };
   } catch (error) {
-    if (error instanceof ApiError && error.status === 503) return DATABASE_DOWN;
+    if (error instanceof ApiError && error.status === 503) return databaseProblem(error);
     return { status: "failed", message: errorText(error) };
   }
 }

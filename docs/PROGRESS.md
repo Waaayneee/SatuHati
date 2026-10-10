@@ -225,3 +225,21 @@ Wayne asked for no login page, a profile switcher, light mode by default, and th
 - A database that can't be reached is now a 503 "Can't reach the database" with CORS headers (handler for `sqlalchemy.exc.OperationalError` in `app/main.py`). Before, the 500 had no CORS headers, so the browser showed only "Failed to fetch". The app shows that message with a hotspot hint and Try again. A "Connecting…" line appears if loading takes over 3 s.
 - Checked: the launcher refuses busy ports. A copy on spare ports started both servers and reported the unreachable database. Both crash and abrupt-kill paths left no process behind. The full start on 3000 was not run while Wayne's own frontend still held the port.
 - Follow-up: running `npm run dev` inside `frontend/` started only Next.js, so every API call failed. A browser extension that wraps `fetch` then re-threw each failure as an unhandled rejection in the Next overlay. `frontend`'s `dev` script now runs the same launcher (`dev:web` is plain `next dev`, used by `.claude/launch.json`). The launcher starts the frontend only after the backend accepts connections on port 8000. Checked live: backend then frontend start in order, the page shows the database message, and the dev log has no "Failed to fetch".
+
+## Phase 1 live verification (2026-10-10, first network that allows port 5432)
+
+<table border="1" cellspacing="0" cellpadding="6">
+  <tr><th>Check</th><th>Result</th></tr>
+  <tr><td><code>python -m scripts.check_db</code></td><td>Both URLs OK</td></tr>
+  <tr><td><code>alembic upgrade head</code> (dev and <code>kawteam_test</code>)</td><td>Done. The dev <code>public</code> schema was empty before</td></tr>
+  <tr><td><code>python -m scripts.check_audit_append_only</code></td><td>UPDATE, DELETE and TRUNCATE all blocked</td></tr>
+  <tr><td><code>python -m scripts.seed</code></td><td>HOD waynehopr, Committee chrispr and zoeypr, 12 policies</td></tr>
+  <tr><td><code>pytest</code></td><td><strong>54 passed</strong> (48 Phase 1 + 6 profile switching)</td></tr>
+  <tr><td>App against the real database</td><td>Profiles, <code>/me</code>, missions and approvals load. Switching acts as each person. <code>/users</code> is 403 for Committee and 200 for the HOD</td></tr>
+  <tr><td>Claude live call and the full <code>PHASE1_DEMO.md</code> run</td><td>Not run yet (needs <code>ANTHROPIC_API_KEY</code>)</td></tr>
+</table>
+
+Found during this check: with the database reachable but the tables missing, the backend answered with a bare 500 that had no CORS headers, so the browser showed only "Failed to fetch". Now:
+- A missing table is a 503 "The database has no KawTeam tables yet", and the app tells you to run the migrations and the seed.
+- Any other unhandled error becomes a JSON 500 that still carries CORS headers (`_ErrorsAsJson` middleware inside CORS in `app/main.py`).
+- `GET /health` reports `database: "no_tables"`, and the launcher prints the setup commands.

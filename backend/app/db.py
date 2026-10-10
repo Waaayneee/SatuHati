@@ -66,3 +66,9 @@ def get_db() -> Iterator[Session]:
 def check_connection(engine: Engine) -> bool:
     with engine.connect() as conn:
         return conn.execute(text("SELECT 1")).scalar_one() == 1
+
+
+def tables_ready(engine: Engine) -> bool:
+    """True when the KawTeam migrations have run (checks one core table on the search path)."""
+    with engine.connect() as conn:
+        return conn.execute(text("SELECT to_regclass('role_assignments') IS NOT NULL")).scalar_one()
