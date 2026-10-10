@@ -28,7 +28,7 @@ def inbox(
     plus every approval on their own missions."""
     if approval_service.expire_stale(db):
         db.commit()
-    query = select(Approval, Mission.code).outerjoin(Mission, Mission.id == Approval.mission_id)
+    query = select(Approval, Mission).outerjoin(Mission, Mission.id == Approval.mission_id)
     if not actor.is_hod:
         me = actor.user_id
         not_mine = and_(
@@ -41,7 +41,7 @@ def inbox(
         query = query.where(Approval.status == ApprovalStatus.PENDING.value)
     rows = db.execute(query.order_by(Approval.created_at.desc()).limit(200)).all()
     emails = serializers.approval_emails(db, [a for a, _ in rows])
-    return [serializers.approval_summary(a, code, emails) for a, code in rows]
+    return [serializers.approval_summary(a, mission, emails) for a, mission in rows]
 
 
 @router.get("/{approval_id}", response_model=ApprovalDetail)

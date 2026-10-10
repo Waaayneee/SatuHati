@@ -72,7 +72,7 @@ def get_mission(
     emails.update(serializers.user_emails(db, [mission.owner_id]))
     return MissionDetail(
         mission=serializers.mission_out(mission, emails),
-        approvals=[serializers.approval_summary(a, mission.code, emails) for a in approvals],
+        approvals=[serializers.approval_summary(a, mission, emails) for a in approvals],
         messages=[
             MessageOut(
                 id=m.id,
@@ -126,7 +126,7 @@ def update_mission(
     return MissionUpdateOut(
         mission=serializers.mission_out(result.mission, emails),
         updated_fields=result.updated_fields,
-        approval=serializers.approval_summary(result.approval, mission.code, emails) if result.approval else None,
+        approval=serializers.approval_summary(result.approval, mission, emails) if result.approval else None,
     )
 
 

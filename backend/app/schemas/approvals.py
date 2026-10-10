@@ -24,6 +24,8 @@ class ApprovalSummary(BaseModel):
     recipient_name: str | None
     kind: str | None
     proposed_total_myr: Money | None
+    hard_budget_myr: Money | None
+    target_total_myr: Money | None
     preview: str | None
 
 

@@ -143,3 +143,14 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 - Extra: `test_auth.py` (401/403 paths, agent token, empty token, CORS, JWKS), `test_tool_isolation.py` (no `anthropic`/`fastapi`/`mcp` imports under `app/tools/`), `test_demo_flow.py` (the whole PHASE1_DEMO script through HTTP with a scripted Claude).
 - Fix found while writing tests: `audit_log.at` now defaults to `clock_timestamp()` instead of `now()`, so rows written in one transaction keep their real order.
 - Check: 9 database-free tests pass. The 39 database tests are **pending the network fix** (port 5432 blocked).
+
+### Step 1.9. Frontend pages
+
+- Next.js 16.4 App Router, Tailwind v4, Apple-style design (system font with size-specific tracking, translucent sticky nav, press feedback on pointer-down, bottom sheet that enters and leaves the same way, light and dark themes, reduced-motion / reduced-transparency / more-contrast support). Very little text on screen.
+- `/login` (Supabase email + password), shared shell with role badge (HOD / Committee) and nav with a pending-approvals count, `/missions` (bordered table + New mission sheet; HOD can confirm on create), `/missions/[id]` (fact tiles, Confirm limits for the HOD, agent prompt + Run agent with the run summary, this mission's approvals, messages with a **SIMULATED** label, demo quotes, activity from the audit log), `/approvals` (Pending / All; tier badge, requester, live expiry countdown, snapshot preview, budget bar vs target and hard budget, approve or reject with a required reason), `/audit`, `/settings` (HOD only, read-only users and roles).
+- Every table has a visible border on every cell (`.grid-table`).
+- Every request sends the Supabase access token as a Bearer header. The frontend never writes to the database and never decides who may approve: Approve / Reject show on every pending item and the backend's 403 reason is shown when someone is not allowed (needed for the demo's "Member A is refused" step).
+- `/missions/[id]` reads its param inside a `<Suspense>` boundary (required by Cache Components). Time-dependent values (countdowns) come from a shared client clock that returns null during server render.
+- Backend tweak: approval summaries now include the mission's current hard budget and target for the budget bar.
+- `.claude/launch.json` added with `frontend` and `backend` dev-server entries.
+- Checks: `npm run lint` clean, `tsc --noEmit` clean, `npm run build` passes. Visual check in the browser at desktop and 375 px, light and dark, using a temporary fixture page (deleted). Signed-out visits redirect to `/login`. A live signed-in check needs the database (network) and the users' passwords.

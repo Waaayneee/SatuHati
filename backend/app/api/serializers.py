@@ -77,12 +77,12 @@ def approval_emails(db: Session, approvals: Iterable[Approval]) -> dict[uuid.UUI
     return user_emails(db, ids)
 
 
-def approval_summary(approval: Approval, mission_code: str | None, emails: dict[uuid.UUID, str]) -> ApprovalSummary:
+def approval_summary(approval: Approval, mission: Mission | None, emails: dict[uuid.UUID, str]) -> ApprovalSummary:
     snapshot = approval.content_snapshot or {}
     return ApprovalSummary(
         id=approval.id,
         mission_id=approval.mission_id,
-        mission_code=mission_code,
+        mission_code=mission.code if mission else None,
         action_type=approval.action_type,
         tier=approval.tier,
         status=approval.status,
@@ -96,6 +96,8 @@ def approval_summary(approval: Approval, mission_code: str | None, emails: dict[
         recipient_name=snapshot.get("recipient_name"),
         kind=snapshot.get("kind"),
         proposed_total_myr=_decimal(snapshot.get("proposed_total_myr")),
+        hard_budget_myr=mission.hard_budget_myr if mission else None,
+        target_total_myr=mission.target_total_myr if mission else None,
         preview=_preview(approval),
     )
 
@@ -103,7 +105,7 @@ def approval_summary(approval: Approval, mission_code: str | None, emails: dict[
 def approval_detail(db: Session, approval: Approval, viewer: Actor) -> ApprovalDetail:
     mission = db.get(Mission, approval.mission_id) if approval.mission_id else None
     emails = approval_emails(db, [approval])
-    summary = approval_summary(approval, mission.code if mission else None, emails)
+    summary = approval_summary(approval, mission, emails)
 
     proposed = summary.proposed_total_myr
     budget = mission.hard_budget_myr if mission else None
