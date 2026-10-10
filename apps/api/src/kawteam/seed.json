@@ -1,0 +1,155 @@
+{
+  "version": 2,
+  "cases": [
+    {
+      "id": "case-totes",
+      "title": "Totes for the tech crowd",
+      "goal": "Find 300 cotton tote bags with a one-colour club logo for our technology event. Compare vendors, collect quotes and negotiate within RM1,500. Deliver to Subang Jaya on or before 25 October.",
+      "quantity": 300,
+      "budgetSen": 150000,
+      "targetSen": 135000,
+      "deadline": "2026-10-25",
+      "location": "Subang Jaya, Selangor",
+      "stage": "decision",
+      "selectedVendorId": null,
+      "vendors": [
+        {
+          "id": "campus",
+          "name": "Campus Printworks",
+          "initials": "CP",
+          "location": "Subang Jaya",
+          "color": "peach",
+          "goodsSen": 145000,
+          "deliverySen": 10000,
+          "initialSen": 165000,
+          "arrival": "2026-10-22",
+          "specsConfirmed": true,
+          "status": "Final offer",
+          "description": "Local printing studio with a fast turnaround and a hands-on production team.",
+          "strengths": [
+            "One-colour printing included",
+            "Arrives 3 days before deadline",
+            "Digital artwork proof"
+          ],
+          "concerns": [
+            "RM50 above your hard budget",
+            "No further price reduction offered"
+          ],
+          "quoteRef": "DEMO-CP-002"
+        },
+        {
+          "id": "meridian",
+          "name": "Meridian Merchandise",
+          "initials": "MM",
+          "location": "Kuala Lumpur",
+          "color": "lilac",
+          "goodsSen": 134000,
+          "deliverySen": null,
+          "initialSen": 134000,
+          "arrival": null,
+          "specsConfirmed": true,
+          "status": "Details pending",
+          "description": "Promotional merchandise supplier offering competitive base pricing.",
+          "strengths": [
+            "Lowest advertised goods price",
+            "Custom logo printing included"
+          ],
+          "concerns": [
+            "Delivery charges not confirmed",
+            "Arrival date still pending"
+          ],
+          "quoteRef": "DEMO-MM-001"
+        },
+        {
+          "id": "willow",
+          "name": "Willow Supply Studio",
+          "initials": "WS",
+          "location": "Petaling Jaya",
+          "color": "sage",
+          "goodsSen": 140000,
+          "deliverySen": 5000,
+          "initialSen": 180000,
+          "arrival": "2026-10-23",
+          "specsConfirmed": true,
+          "status": "Terms confirmed",
+          "description": "Small-batch merchandise studio specialising in thoughtful, practical event goods.",
+          "strengths": [
+            "RM1,450 all-in quotation",
+            "Delivery and printing included",
+            "Arrives 2 days before deadline"
+          ],
+          "concerns": [
+            "Quote valid until 15 October",
+            "Artwork approval required before production"
+          ],
+          "quoteRef": "DEMO-WS-003"
+        }
+      ],
+      "events": [
+        {
+          "id": "e1",
+          "title": "Your brief, understood",
+          "detail": "300 cotton tote bags. RM1,500 ceiling. Arrive by 25 October.",
+          "time": "10:02",
+          "kind": "research"
+        },
+        {
+          "id": "e2",
+          "title": "Three suppliers compared",
+          "detail": "Printing, landed cost and delivery checked against your brief.",
+          "time": "10:04",
+          "kind": "research"
+        },
+        {
+          "id": "e3",
+          "title": "Campus reached its price floor",
+          "detail": "RM1,550 final offer. Above budget, so outreach moved to a backup.",
+          "time": "10:08",
+          "kind": "mail"
+        },
+        {
+          "id": "e4",
+          "title": "A better offer from Willow",
+          "detail": "RM1,800 → RM1,450, with the same quantity and printing.",
+          "time": "10:12",
+          "kind": "offer"
+        },
+        {
+          "id": "e5",
+          "title": "Ready for your judgement",
+          "detail": "Offers collected. The final choice belongs to your team.",
+          "time": "10:14",
+          "kind": "human"
+        }
+      ],
+      "draft": {
+        "recipient": "Willow Supply Studio · controlled demo recipient",
+        "subject": "Artwork proof for 300 custom tote bags",
+        "body": "Hi Willow team,\n\nThank you for the revised all-in quotation of RM1,450 for 300 cotton tote bags with one-colour printing, delivered to Subang Jaya by 23 October.\n\nCould you share a digital artwork proof and confirm the production timeline after we review it? This is an enquiry only; our organising team will make the final vendor decision.\n\nThank you,\nAina\nTechnology Club",
+        "status": "pending",
+        "revision": 1
+      }
+    },
+    {
+      "id": "case-workshop",
+      "title": "A little fuel for big ideas",
+      "goal": "Find a catering partner for a 50-person student workshop. Vegetarian options required. We need comparable quotes before making a decision.",
+      "quantity": 50,
+      "budgetSen": 80000,
+      "targetSen": 70000,
+      "deadline": "2026-10-28",
+      "location": "Taylor’s University",
+      "stage": "brief",
+      "selectedVendorId": null,
+      "vendors": [],
+      "events": [],
+      "draft": {
+        "recipient": "No vendor yet",
+        "subject": "Quotation enquiry",
+        "body": "",
+        "status": "pending",
+        "revision": 1
+      }
+    }
+  ]
+}
