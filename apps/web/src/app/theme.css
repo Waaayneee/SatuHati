@@ -164,7 +164,7 @@ small,.kt-chat-note,.kt-msg-label{letter-spacing:0}
 }
 
 /* Aurora: a fixed, very soft background behind the whole app (layout.tsx), plus film grain. */
-.kt-aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:var(--kt-bg)}
+.kt-aurora{ --pointer-x:0px; --pointer-y:0px; position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:var(--kt-bg);animation:kt-breath 900ms var(--kt-ease-out)}
 /* The drift moves in ~0.5px steps about four times a second instead of every frame: it looks the same at this
    speed, and the frames in between (and the blur over the aurora) are not redrawn. */
 .kt-aurora>span{position:absolute;border-radius:50%;animation:kt-drift 56s steps(120) infinite alternate}
@@ -174,29 +174,27 @@ small,.kt-chat-note,.kt-msg-label{letter-spacing:0}
 .kt-aurora>span:nth-child(4){width:70vmax;height:46vmax;left:-16vmax;bottom:-26vmax;background:radial-gradient(closest-side,color-mix(in srgb,var(--kt-aurora-teal) 14%,transparent),transparent);animation-duration:69s;animation-delay:-30s}
 .kt-aurora>span:nth-child(5){width:58vmax;height:42vmax;right:-14vmax;bottom:-24vmax;background:radial-gradient(closest-side,color-mix(in srgb,var(--kt-aurora-forest) 14%,transparent),transparent);animation-duration:58s;animation-delay:-41s}
 .kt-aurora::after{content:"";position:absolute;inset:0;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");background-size:180px 180px}
-@keyframes kt-drift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(4vmax,3vmax,0) scale(1.08)}100%{transform:translate3d(-3vmax,5vmax,0) scale(.96)}}
+@keyframes kt-drift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(12vmax,10vmax,0) scale(1.18)}100%{transform:translate3d(-10vmax,16vmax,0) scale(1.12)}}
+@keyframes kt-breath{0%{scale:1}18%{scale:1.18}52%{scale:1.1}100%{scale:1}}
 /* The aurora reacts to navigation (aurora.tsx sets data-view). Each view moves, scales and fades the five blobs
    through the individual translate/scale properties, so the route shift stacks on top of the kt-drift transform. */
 .kt-aurora>span{will-change:transform,translate,scale,opacity;transition:translate var(--kt-dur-bg) var(--kt-ease-spring),scale var(--kt-dur-bg) var(--kt-ease-spring),opacity 800ms var(--kt-ease-out)}
-.kt-aurora>span:nth-child(1){translate:var(--b1-x,0px) var(--b1-y,0px);scale:var(--b1-s,1);opacity:var(--b1-o,1)}
-.kt-aurora>span:nth-child(2){translate:var(--b2-x,0px) var(--b2-y,0px);scale:var(--b2-s,1);opacity:var(--b2-o,1)}
-.kt-aurora>span:nth-child(3){translate:var(--b3-x,0px) var(--b3-y,0px);scale:var(--b3-s,1);opacity:var(--b3-o,1)}
-.kt-aurora>span:nth-child(4){translate:var(--b4-x,0px) var(--b4-y,0px);scale:var(--b4-s,1);opacity:var(--b4-o,1)}
-.kt-aurora>span:nth-child(5){translate:var(--b5-x,0px) var(--b5-y,0px);scale:var(--b5-s,1);opacity:var(--b5-o,1)}
+.kt-aurora>span:nth-child(1){translate:calc(var(--b1-x,0px) + (var(--pointer-x,0px) * 6.5)) calc(var(--b1-y,0px) + (var(--pointer-y,0px) * 5.2));scale:calc(var(--b1-s,1) * 1.9);opacity:var(--b1-o,1)}
+.kt-aurora>span:nth-child(2){translate:calc(var(--b2-x,0px) + (var(--pointer-x,0px) * 5.8)) calc(var(--b2-y,0px) + (var(--pointer-y,0px) * 5.1));scale:calc(var(--b2-s,1) * 1.85);opacity:var(--b2-o,1)}
+.kt-aurora>span:nth-child(3){translate:calc(var(--b3-x,0px) + (var(--pointer-x,0px) * 4.2)) calc(var(--b3-y,0px) + (var(--pointer-y,0px) * 6));scale:calc(var(--b3-s,1) * 2.1);opacity:var(--b3-o,1)}
+.kt-aurora>span:nth-child(4){translate:calc(var(--b4-x,0px) + (var(--pointer-x,0px) * -4.6)) calc(var(--b4-y,0px) + (var(--pointer-y,0px) * -5.2));scale:calc(var(--b4-s,1) * 2.2);opacity:var(--b4-o,1)}
+.kt-aurora>span:nth-child(5){translate:calc(var(--b5-x,0px) + (var(--pointer-x,0px) * -6.5)) calc(var(--b5-y,0px) + (var(--pointer-y,0px) * -6.2));scale:calc(var(--b5-s,1) * 2.2);opacity:var(--b5-o,1)}
 /* chat: the resting layout (lime top left). */
-.kt-aurora[data-view=tasks]{--b1-x:6vmax;--b2-y:6vmax;--b3-x:-6vmax;--b3-s:.94}
-.kt-aurora[data-view=files]{--b1-x:4vmax;--b1-y:6vmax;--b4-y:-8vmax;--b4-s:1.1;--b5-s:1.08}
-.kt-aurora[data-view=vendors]{--b2-s:1.1;--b4-x:10vmax;--b4-y:-6vmax;--b1-o:.85}
-.kt-aurora[data-view=activity]{--b1-s:.9;--b1-o:.85;--b2-x:-10vmax;--b3-y:-10vmax}
-.kt-aurora[data-view=approvals]{--b1-x:6vmax;--b1-y:4vmax;--b1-s:1.18;--b2-o:.8;--b3-o:.7;--b5-o:.8}
-.kt-aurora[data-view=calendar]{--b1-s:.95;--b2-x:8vmax;--b3-x:10vmax;--b3-y:-4vmax;--b3-s:1.12}
-.kt-aurora[data-view=connections]{--b1-s:.9;--b1-o:.75;--b4-x:14vmax;--b4-y:-10vmax;--b4-s:1.2;--b5-x:-8vmax}
-.kt-aurora[data-view=cases]{--b1-x:10vmax;--b1-y:8vmax;--b1-s:1.08;--b2-x:-8vmax;--b2-y:6vmax;--b3-x:-6vmax;--b4-x:6vmax;--b4-y:-6vmax;--b5-x:-6vmax;--b5-y:-6vmax;--b5-s:1.08}
-/* One soft breath per route change; a/b alternate so the one-shot animation restarts without a remount. */
-.kt-aurora[data-breath=a]{animation:kt-breath-a 900ms var(--kt-ease-out)}
-.kt-aurora[data-breath=b]{animation:kt-breath-b 900ms var(--kt-ease-out)}
-@keyframes kt-breath-a{50%{scale:1.03}}
-@keyframes kt-breath-b{50%{scale:1.03}}
+.kt-aurora[data-view=tasks]{--b1-x:12vmax;--b2-y:12vmax;--b3-x:-12vmax;--b3-s:1.2}
+.kt-aurora[data-view=files]{--b1-x:8vmax;--b1-y:12vmax;--b4-y:-14vmax;--b4-s:1.6;--b5-s:1.45}
+.kt-aurora[data-view=vendors]{--b2-s:1.5;--b4-x:18vmax;--b4-y:-12vmax;--b1-o:.8}
+.kt-aurora[data-view=activity]{--b1-s:1.15;--b1-o:.75;--b2-x:-18vmax;--b3-y:-18vmax}
+.kt-aurora[data-view=approvals]{--b1-x:12vmax;--b1-y:8vmax;--b1-s:1.7;--b2-o:.7;--b3-o:.6;--b5-o:.7}
+.kt-aurora[data-view=calendar]{--b1-s:1.2;--b2-x:16vmax;--b3-x:20vmax;--b3-y:-8vmax;--b3-s:1.5}
+.kt-aurora[data-view=connections]{--b1-s:1.15;--b1-o:.7;--b4-x:24vmax;--b4-y:-18vmax;--b4-s:1.8;--b5-x:-14vmax}
+.kt-aurora[data-view=cases]{--b1-x:18vmax;--b1-y:14vmax;--b1-s:1.5;--b2-x:-14vmax;--b2-y:12vmax;--b3-x:-12vmax;--b4-x:12vmax;--b4-y:-10vmax;--b5-x:-10vmax;--b5-y:-10vmax;--b5-s:1.5}
+/* Lighter route transitions: each remount animates the whole screen-sized aurora, with the view offsets layered on top. */
+:root[data-perf=lite] .kt-aurora{animation:none}
 
 /* Liquid glass: translucent fill, blur and saturate, bright edge, inner glow, specular rim. */
 .kt-glass,.kt-glass-strong{position:relative;isolation:isolate;background:var(--kt-glass-fill);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);border:var(--kt-glass-edge);box-shadow:var(--kt-glass-highlight),var(--kt-glass-shadow)}
@@ -206,6 +204,7 @@ small,.kt-chat-note,.kt-msg-label{letter-spacing:0}
 
 /* Layout and generous spacing. */
 .kt-main{margin-left:300px;background:transparent}
+.kt-main.sidebar-closed{margin-left:0}
 .kt-topbar{position:sticky;top:0;z-index:20;height:60px;padding:0 32px;background:var(--kt-glass-fill);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);border-bottom:var(--kt-glass-edge);box-shadow:inset 0 -1px 0 rgba(0,84,95,.06),0 8px 24px rgba(0,84,95,.04)}
 .kt-breadcrumb>span{font-size:var(--kt-size-md);font-weight:700;color:var(--kt-text);letter-spacing:-.01em}
 .workspace-page{padding:28px 32px 40px;max-width:1440px;background:transparent}
@@ -213,14 +212,19 @@ small,.kt-chat-note,.kt-msg-label{letter-spacing:0}
 .kt-footer{margin-inline:32px;border-top:1px solid var(--kt-line);color:var(--kt-text-3)}
 
 /* Sidebar: light frosted glass; lime for the primary action, pale lime for selection, faint teal hover. */
-.kt-sidebar{position:fixed;inset:0 auto 0 0;z-index:40;width:300px;display:flex;flex-direction:column;padding:16px 14px 14px;background:var(--kt-sidebar-material);border-right:var(--kt-glass-edge);box-shadow:inset -1px 0 0 rgba(255,255,255,.9),inset 0 1px 0 rgba(255,255,255,.95),12px 0 40px rgba(0,84,95,.06);color:var(--kt-sidebar-text)}
-.kt-brand{display:flex;align-items:center;min-height:52px;padding:0 10px}
+.kt-sidebar{position:fixed;inset:0 auto 0 0;z-index:40;width:300px;display:flex;flex-direction:column;padding:16px 14px 14px;background:linear-gradient(180deg,rgba(255,255,255,.52),rgba(255,255,255,.28));-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);border:2px solid rgba(255,255,255,.8);border-left:0;border-right:2px solid rgba(255,255,255,.8);border-radius:0 28px 28px 0;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(255,255,255,.3),0 28px 70px rgba(0,84,95,.08);color:var(--kt-sidebar-text);transition:transform var(--kt-spring-bounce-duration) var(--kt-spring-bounce),opacity .2s ease,visibility 0s linear .2s}
+.kt-sidebar.hidden{transform:translateX(-104%);opacity:0;visibility:hidden;pointer-events:none}
+.kt-sidebar.visible{transform:none;opacity:1;visibility:visible;pointer-events:auto}
+.kt-sidebar-hide,.kt-sidebar-reveal{position:fixed;top:16px;z-index:60;width:42px;height:42px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.8);border-radius:14px;background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.38));-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 10px 24px rgba(0,84,95,.12);color:var(--kt-text-2)}
+.kt-sidebar-hide{right:18px}
+.kt-sidebar-reveal{left:18px}
+.kt-brand{display:flex;align-items:center;min-height:52px;padding:0 10px;max-width:210px}
 /* The KawTeam wordmark (public/brand); the width follows the image ratio. */
-.kt-brand>img{display:block;width:auto;height:36px}
+.kt-brand>img{display:block;width:auto;height:36px;max-width:100%}
 .kt-new-chat{display:flex;align-items:center;gap:10px;min-height:48px;margin:10px 0 18px;padding:0 12px;border:1px solid var(--kt-sidebar-line);border-radius:var(--kt-radius-pill);background:var(--kt-lime);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 6px 18px rgba(0,84,95,.12);color:var(--kt-sidebar-text);font-size:var(--kt-size-md);font-weight:700}
-.kt-nav-link{display:flex;align-items:center;gap:10px;min-height:44px;margin:1px 0;padding:8px 10px;border-radius:14px;color:var(--kt-sidebar-text-2);font-size:var(--kt-size-md);font-weight:400}
+.kt-nav-link{display:flex;align-items:center;gap:10px;min-height:44px;margin:1px 0;padding:8px 10px;border:1px solid rgba(255,255,255,.38);border-radius:14px;background:rgba(255,255,255,.14);color:var(--kt-sidebar-text-2);font-size:var(--kt-size-md);font-weight:400;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .kt-nav-link>svg{flex:none;color:var(--kt-sidebar-text-3)}
-.kt-nav-link.active{background:var(--kt-pale-lime);color:var(--kt-teal);font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.kt-nav-link.active{background:linear-gradient(135deg,rgba(255,255,255,.72),rgba(236,255,182,.88));color:var(--kt-teal);font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 8px 18px rgba(0,84,95,.08);border-color:rgba(255,255,255,.8)}
 .kt-nav-link.active>svg{color:var(--kt-teal)}
 .kt-nav-link>span:last-child{margin-left:auto;min-width:20px;height:20px;display:grid;place-items:center;padding:0 6px;border-radius:999px;background:var(--kt-sidebar-hover-strong);color:var(--kt-sidebar-text-2);font-size:var(--kt-size-xs);font-weight:700}
 .kt-nav-link.active>span:last-child{background:var(--kt-teal);color:var(--kt-pale-lime)}
@@ -279,11 +283,11 @@ dialog.dialog::backdrop{background:var(--kt-scrim)}
 .kt-composer-dock{position:absolute;left:0;right:0;bottom:0;max-width:960px;margin:0 auto;padding:28px 20px 16px;background:none;pointer-events:none}
 .kt-composer-dock>*{pointer-events:auto}
 /* Composer: a two-row strong-glass card. Row 1 is the textarea, row 2 the toolbar. */
-.kt-composer{position:relative;isolation:isolate;flex-direction:column;align-items:stretch;gap:10px;padding:16px 14px 12px;background:var(--kt-glass-fill-strong);-webkit-backdrop-filter:var(--kt-glass-blur);backdrop-filter:var(--kt-glass-blur);border:var(--kt-glass-edge);border-radius:var(--kt-radius-composer);box-shadow:var(--kt-glass-highlight),var(--kt-glass-shadow);transition:border-color .2s}
-.kt-composer::after{content:"";position:absolute;inset:-1px;z-index:1;border-radius:inherit;padding:1px;pointer-events:none;background:var(--kt-glass-rim);opacity:.75;transition:opacity .2s;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
-.kt-composer:focus-within{border-color:rgba(255,255,255,.95);box-shadow:0 0 0 3px var(--kt-focus),var(--kt-glass-highlight),var(--kt-glass-shadow)}
+.kt-composer{position:relative;isolation:isolate;flex-direction:column;align-items:stretch;gap:10px;padding:16px 14px 12px;background:linear-gradient(135deg,rgba(255,255,255,.72),rgba(255,255,255,.38));-webkit-backdrop-filter:blur(22px) saturate(170%);backdrop-filter:blur(22px) saturate(170%);border:2px solid rgba(255,255,255,.8);border-radius:var(--kt-radius-composer);box-shadow:inset 0 1px 0 rgba(255,255,255,.92),inset 0 -1px 0 rgba(255,255,255,.35),0 26px 60px rgba(0,84,95,.12);transition:border-color .2s,box-shadow .2s}
+.kt-composer::after{content:"";position:absolute;inset:-1px;z-index:1;border-radius:inherit;padding:1px;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,1),rgba(255,255,255,.6) 32%,rgba(255,255,255,.18) 52%,rgba(255,255,255,.4));opacity:.9;transition:opacity .2s;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.kt-composer:focus-within{border-color:rgba(255,255,255,.96);box-shadow:0 0 0 3px rgba(255,255,255,.7),inset 0 1px 0 rgba(255,255,255,.9),0 28px 70px rgba(0,84,95,.14)}
 .kt-composer:focus-within::after{opacity:1}
-.kt-composer textarea{width:100%;flex:none;min-height:96px;max-height:280px;overflow-y:auto;padding:2px 6px;font-size:var(--kt-size-md);line-height:1.5;color:var(--kt-text)}
+.kt-composer textarea{width:100%;flex:none;min-height:96px;max-height:280px;overflow-y:auto;padding:2px 6px;font-size:var(--kt-size-md);line-height:1.5;color:var(--kt-text);background:rgba(255,255,255,.04);border-radius:14px}
 .kt-composer textarea::placeholder{color:var(--kt-text-3)}
 .kt-composer-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
 .kt-composer-tools{display:flex;align-items:center;gap:6px;min-width:0}
@@ -606,6 +610,7 @@ dialog.dialog.sheet[open]{transform-origin:right center}
   .kt-chat-scroll{padding-bottom:260px}
   .kt-sidebar{transform:translateX(-100%);visibility:hidden;transition:transform var(--kt-spring-bounce-duration) var(--kt-spring-bounce),visibility 0s linear var(--kt-spring-bounce-duration)}
   .kt-sidebar.open{transform:none;visibility:visible;transition:transform var(--kt-spring-bounce-duration) var(--kt-spring-bounce),visibility 0s}
+  .kt-sidebar.hidden{transform:translateX(-104%);visibility:hidden}
 }
 @media print{.kt-sidebar{display:none!important}.kt-main{margin:0!important}}
 .skip-link{background:var(--kt-accent);color:var(--kt-on-accent);border-radius:10px}
