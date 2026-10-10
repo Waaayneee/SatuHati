@@ -83,3 +83,11 @@ Kickoff: `docs/StakeMate_Claude_Code_Kickoff_Phase_0_1.md`. Blueprint: `docs/Sta
 - `app/services/seed_service.py` holds the 12 approval policies from the kickoff table (Tier 0 roles stored as `["any"]`, Tier 1 as `["committee_member", "hod"]` with the not-requester note, Tier 2/3 as `["hod"]`).
 - `python -m scripts.seed` looks the three users up in Supabase `auth.users` through the database connection (no secret key needed), makes each seeded user hold exactly its configured role, writes `user.created` / `role.assigned` / `role.removed` audit rows, and upserts the policies. Safe to re-run.
 - Check: imports compile. Live run is **pending the network fix**.
+
+### Step 1.3. Authentication and actors
+
+- `app/auth/actor.py`: framework-agnostic `Actor` (`type`, `id`, `roles`, plus `on_behalf_of` for agent runs started by a person). Agents never carry roles.
+- `app/auth/tokens.py`: verifies Supabase access tokens via JWKS (ES256/RS256/EdDSA only) or the legacy secret (HS256), audience `authenticated`, issuer `<SUPABASE_URL>/auth/v1`, `role = authenticated`, 30 s leeway.
+- `app/auth/dependencies.py`: `get_current_actor` maps a Bearer token to a `users` row and its roles (no role or unknown user gives 403). `X-Agent-Token` equal to `AGENT_SERVICE_TOKEN` (compared with `secrets.compare_digest`) becomes `agent:claude` with no roles. An empty configured token never authenticates.
+- CORS allows only `FRONTEND_ORIGIN`. Domain errors map to 404/403/409/422.
+- Check: local ES256 key test. Valid token accepted; wrong audience, wrong issuer, expired, anon role and forged signature all rejected. Full HTTP tests come in Step 1.10.

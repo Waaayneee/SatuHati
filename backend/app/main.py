@@ -1,8 +1,35 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 
+from app.config import settings
 from app.db import check_connection, get_engine
+from app.services.errors import Conflict, DomainError, InvalidInput, NotFound, PermissionDenied, Refused
 
 app = FastAPI(title="KawTeam API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[settings.frontend_origin],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PATCH"],
+    allow_headers=["Authorization", "Content-Type"],
+)
+
+_STATUS_FOR_ERROR: list[tuple[type[DomainError], int]] = [
+    (NotFound, 404),
+    (PermissionDenied, 403),
+    (Conflict, 409),
+    (Refused, 422),
+    (InvalidInput, 422),
+]
+
+
+@app.exception_handler(DomainError)
+def _domain_error(_request: Request, exc: DomainError) -> JSONResponse:
+    code = next((c for cls, c in _STATUS_FOR_ERROR if isinstance(exc, cls)), 400)
+    return JSONResponse(status_code=code, content=jsonable_encoder({"detail": exc.message, **exc.details}))
 
 
 @app.get("/health")
